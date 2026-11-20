@@ -1,0 +1,119 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Client Page Link 0.1.0\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Domain: client-page-link\n"
+
+#. Plugin Name
+msgid "Client Page Link"
+msgstr "Client Page Link"
+
+#. Description
+msgid "Give each client a private page they open from a link in their email. No passwords, no login screen, and the link keeps working for weeks."
+msgstr "お客さまごとに、メールのリンクから開ける専用ページを用意します。パスワードもログイン画面もなく、リンクは数週間使えます。"
+
+msgid "Client (link only)"
+msgstr "お客さま（リンクのみ）"
+
+msgid "Client"
+msgstr "お客さま"
+
+msgid "Post types"
+msgstr "対象の投稿タイプ"
+
+msgid "A box to assign a client appears on these. Posts without a client stay public."
+msgstr "選んだ投稿タイプの編集画面に、お客さまを割り当てる欄が出ます。お客さまを割り当てていない投稿は公開のままです。"
+
+msgid "Link lifetime (days)"
+msgstr "リンクの有効期限（日）"
+
+msgid "Links work any number of times until then, and a client who opened one stays signed in for the same period. Short lifetimes break links that sit in an inbox during a long review."
+msgstr "期限までは何度でも開けます。リンクを開いたお客さまは、同じ期間ログインしたままになります。短くすると、先方の社内確認が長引いたときにメールのリンクが切れます。"
+
+msgid "Letting clients ask for a new link"
+msgstr "お客さまがリンクを再発行できるようにする"
+
+msgid "Put this shortcode on any public page:"
+msgstr "公開しているページに、次のショートコードを置いてください:"
+
+msgid "— None (public) —"
+msgstr "— なし（公開） —"
+
+msgid "Or add a new client"
+msgstr "新しいお客さまを追加"
+
+msgid "Email"
+msgstr "メールアドレス"
+
+msgid "Name (optional)"
+msgstr "お名前（任意）"
+
+msgid "Publish the post to send a link."
+msgstr "公開すると、リンクを送れるようになります。"
+
+msgid "Send link by email"
+msgstr "リンクをメールで送る"
+
+msgid "Show a link to copy"
+msgstr "リンクを表示してコピー"
+
+msgid "Revoke all links"
+msgstr "リンクをすべて取り消す"
+
+msgid "Revoking also signs the client out everywhere. Send a new link afterwards."
+msgstr "取り消すと、お客さまはすべての端末でログアウトされます。そのあと新しいリンクを送ってください。"
+
+msgid "Sorry, you are not allowed to do that."
+msgstr "この操作を行う権限がありません。"
+
+msgid "The link was sent to the client."
+msgstr "お客さまにリンクを送りました。"
+
+msgid "All links to this page were revoked and the client was signed out."
+msgstr "このページのリンクをすべて取り消し、お客さまをログアウトさせました。"
+
+msgid "No link was created. Check that a client is assigned and that this site can send email."
+msgstr "リンクを作れませんでした。お客さまが割り当てられているか、このサイトからメールを送れるかを確かめてください。"
+
+msgid "Copy this link into your own email. It is shown only once."
+msgstr "このリンクをコピーして、ご自身のメールに貼ってください。表示は1回だけです。"
+
+msgid "Invalid post ID."
+msgstr "投稿 ID が無効です。"
+
+msgid "This account opens only from the link we sent by email."
+msgstr "このアカウントは、メールでお送りしたリンクからのみ開けます。"
+
+#. translators: %s: site name
+msgid "[%s] Your link"
+msgstr "【%s】専用ページのリンクをお送りします"
+
+msgid "Here is a new link to your page. If you did not ask for it, you can ignore this email."
+msgstr "専用ページのリンクを再発行しました。お心当たりがない場合は、このメールを破棄してください。"
+
+#. translators: %s: site name
+msgid "[%s] Your page is ready"
+msgstr "【%s】専用ページをご用意しました"
+
+msgid "We have prepared a page for you. There is no password: the link below opens it directly."
+msgstr "専用ページをご用意しました。パスワードはありません。下のリンクからそのまま開けます。"
+
+#. translators: %s: date
+msgid "The link works until %s. After that, you can ask for a new one on our site."
+msgstr "リンクは %s まで使えます。期限が切れたあとは、サイトから再発行できます。"
+
+msgid "If the address belongs to a client, a new link is on its way. Please check your inbox."
+msgstr "ご登録のアドレスでしたら、新しいリンクをお送りしました。メールをご確認ください。"
+
+msgid "Your email address"
+msgstr "メールアドレス"
+
+msgid "Leave this empty"
+msgstr "この欄は空のままにしてください"
+
+msgid "Send me a new link"
+msgstr "リンクを再発行する"

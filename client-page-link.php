@@ -10,6 +10,7 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       client-page-link
+ * Domain Path:       /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,6 +26,29 @@ define( 'CPLINK_QUERY_ARG', 'cplink' );
 
 require_once __DIR__ . '/includes/core.php';
 require_once __DIR__ . '/includes/request.php';
+
+/**
+ * Bundled translations. Ones from translate.wordpress.org, when present,
+ * are loaded first and win.
+ */
+add_action(
+	'init',
+	function () {
+		load_plugin_textdomain( 'client-page-link', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	},
+	0
+);
+
+// The role name is saved in the language active at activation. Show it in the current one.
+add_action(
+	'init',
+	function () {
+		$roles = wp_roles();
+		if ( isset( $roles->role_names[ CPLINK_ROLE ] ) ) {
+			$roles->role_names[ CPLINK_ROLE ] = __( 'Client (link only)', 'client-page-link' );
+		}
+	}
+);
 
 if ( is_admin() ) {
 	require_once __DIR__ . '/includes/admin.php';
