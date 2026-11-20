@@ -152,3 +152,6 @@ msgstr "メールを送れませんでした。このサイトからメールを
 
 msgid "The link was replaced and the viewer was signed out. Send them the new link."
 msgstr "リンクを作り直し、閲覧者をログアウトさせました。新しいリンクを送ってください。"
+
+msgid "Settings"
+msgstr "設定"
