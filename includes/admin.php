@@ -96,7 +96,7 @@ add_action(
 	'add_meta_boxes',
 	function () {
 		foreach ( cplink_post_types() as $type ) {
-			add_meta_box( 'cplink', __( 'Private page for a client', 'client-page-link' ), 'cplink_render_meta_box', $type, 'side' );
+			add_meta_box( 'cplink', __( 'Private page for a client', 'client-page-link' ), 'cplink_render_meta_box', $type, 'normal', 'high' );
 		}
 	}
 );
