@@ -1,6 +1,63 @@
 /* global ppmlAdmin */
 ( function () {
+	function send( root, data ) {
+		var body = new FormData();
+		body.append( 'action', 'ppml' );
+		body.append( 'post', root.dataset.post );
+		body.append( '_ajax_nonce', root.dataset.nonce );
+		Object.keys( data ).forEach( function ( k ) {
+			body.append( k, data[ k ] );
+		} );
+		return fetch( ppmlAdmin.ajaxUrl, { method: 'POST', body: body, credentials: 'same-origin' } )
+			.then( function ( r ) {
+				return r.json();
+			} )
+			.catch( function () {
+				return { success: false, data: ppmlAdmin.failed };
+			} );
+	}
+
+	// Replace the box with the redrawn one from the server.
+	function redraw( root, res, fallbackTarget ) {
+		if ( res.success && res.data.html ) {
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = res.data.html.trim();
+			root.replaceWith( tmp.firstElementChild );
+			return;
+		}
+		var msg = root.querySelector( '.ppml-result' ) || fallbackTarget;
+		if ( msg ) {
+			msg.textContent = res.data || ppmlAdmin.failed;
+			msg.hidden = false;
+		}
+	}
+
+	document.addEventListener( 'change', function ( e ) {
+		if ( ! e.target.matches( '.ppml-select' ) ) {
+			return;
+		}
+		var root = e.target.closest( '.ppml' );
+		root.classList.add( 'is-busy' );
+		send( root, { do: 'assign', client: e.target.value } ).then( function ( res ) {
+			root.classList.remove( 'is-busy' );
+			redraw( root, res, root.querySelector( '.ppml-error' ) );
+		} );
+	} );
+
 	document.addEventListener( 'click', function ( e ) {
+		var add = e.target.closest( '.ppml-add' );
+		if ( add ) {
+			var r = add.closest( '.ppml' );
+			var email = r.querySelector( '[name="ppml_new_email"]' );
+			var name = r.querySelector( '[name="ppml_new_name"]' );
+			add.disabled = true;
+			send( r, { do: 'create', email: email.value, name: name.value } ).then( function ( res ) {
+				add.disabled = false;
+				redraw( r, res, r.querySelector( '.ppml-error' ) );
+			} );
+			return;
+		}
+
 		var copy = e.target.closest( '.ppml-copy' );
 		if ( copy ) {
 			var wrap = copy.closest( '.ppml-link' );
@@ -19,42 +76,25 @@
 		if ( btn.dataset.confirm && ! window.confirm( btn.dataset.confirm ) ) {
 			return;
 		}
-		var box = btn.closest( '.ppml-box' );
-		var result = box.querySelector( '.ppml-result' );
-		var body = new FormData();
-		body.append( 'action', 'ppml' );
-		body.append( 'do', btn.dataset.do );
-		body.append( 'post', box.dataset.post );
-		body.append( '_ajax_nonce', box.dataset.nonce );
-
+		var root = btn.closest( '.ppml' );
+		var result = root.querySelector( '.ppml-result' );
 		btn.disabled = true;
 		result.textContent = '';
-		fetch( ppmlAdmin.ajaxUrl, { method: 'POST', body: body, credentials: 'same-origin' } )
-			.then( function ( r ) {
-				return r.json();
-			} )
-			.then( function ( res ) {
-				if ( ! res.success ) {
-					result.textContent = res.data || ppmlAdmin.failed;
-					return;
+		send( root, { do: btn.dataset.do } ).then( function ( res ) {
+			btn.disabled = false;
+			if ( ! res.success ) {
+				result.textContent = res.data || ppmlAdmin.failed;
+				return;
+			}
+			if ( res.data.link ) {
+				var w = root.querySelector( '.ppml-link' );
+				w.querySelector( '.ppml-copied' ).hidden = true;
+				w.querySelector( '.ppml-url' ).value = res.data.link;
+				if ( res.data.expires ) {
+					w.querySelector( '.ppml-expires-text' ).textContent = res.data.expires;
 				}
-				if ( res.data.link ) {
-					var wrap = box.querySelector( '.ppml-link' );
-					wrap.hidden = false;
-					wrap.querySelector( '.ppml-copied' ).hidden = true;
-					var input = wrap.querySelector( '.ppml-url' );
-					input.value = res.data.link;
-					if ( res.data.expires ) {
-						wrap.querySelector( '.ppml-expires-text' ).textContent = res.data.expires;
-					}
-				}
-				result.textContent = res.data.message || '';
-			} )
-			.catch( function () {
-				result.textContent = ppmlAdmin.failed;
-			} )
-			.then( function () {
-				btn.disabled = false;
-			} );
+			}
+			result.textContent = res.data.message || '';
+		} );
 	} );
 }() );

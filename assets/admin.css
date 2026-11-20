@@ -379,3 +379,30 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+.ppml-flash {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 12px !important;
+	padding: 8px 12px;
+	border-radius: 6px;
+	background: var(--ppml-private-soft);
+	color: #00661b;
+	font-weight: 600;
+}
+
+.ppml-error {
+	margin-top: 8px !important;
+	padding: 8px 12px;
+	border-radius: 6px;
+	background: #fcf0f1;
+	border: 1px solid #f0b8bc;
+	color: #8a2424;
+}
+
+.ppml.is-busy {
+	opacity: 0.55;
+	pointer-events: none;
+	transition: opacity 0.15s;
+}

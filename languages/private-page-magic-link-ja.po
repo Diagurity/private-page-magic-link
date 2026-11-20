@@ -97,14 +97,12 @@ msgstr "閲覧者を選ぶと、このページはその閲覧者と、このペ
 msgid "Add a new viewer"
 msgstr "新しい閲覧者を追加する"
 
-msgid "Registered when you update the page. No password is created for them."
-msgstr "ページを更新すると登録されます。閲覧者のパスワードは作りません。"
 
 msgid "Link for the viewer"
 msgstr "閲覧者に渡すリンク"
 
-msgid "Choose a viewer and update the page. The link will appear here."
-msgstr "閲覧者を選んでページを更新すると、ここにリンクが出ます。"
+msgid "Choose a viewer above. The link appears here right away."
+msgstr "上で閲覧者を選ぶと、すぐにここにリンクが出ます。"
 
 msgid "Publish the page. The link will appear here."
 msgstr "ページを公開すると、ここにリンクが出ます。"
@@ -186,3 +184,24 @@ msgstr "日"
 
 msgid "Any existing user who cannot edit posts can be chosen. Administrators and editors are not listed: a leaked link would sign someone in with their permissions."
 msgstr "投稿を編集できないユーザーなら、既存のユーザーも選べます。管理者や編集者は出しません。リンクが漏れたときに、その人の権限でログインされてしまうためです。"
+
+msgid "Add as the viewer"
+msgstr "閲覧者として追加する"
+
+msgid "No password is created for them."
+msgstr "パスワードは作りません。"
+
+msgid "Enter a valid email address."
+msgstr "正しいメールアドレスを入れてください。"
+
+msgid "This address belongs to someone who can edit posts, such as an administrator. They can already see every page."
+msgstr "このアドレスは、管理者など投稿を編集できる人のものです。その人はもともとすべてのページを見られます。"
+
+msgid "This user cannot be a viewer."
+msgstr "このユーザーは閲覧者にできません。"
+
+msgid "Saved. Only this viewer can see the page now."
+msgstr "保存しました。このページはこの閲覧者だけが見られます。"
+
+msgid "Saved. The page is public now."
+msgstr "保存しました。このページは公開に戻りました。"
