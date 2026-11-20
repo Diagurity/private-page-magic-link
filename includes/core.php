@@ -2,7 +2,7 @@
 /**
  * Settings, access rules, links and mail.
  *
- * @package client-page-link
+ * @package private-page-magic-link
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * @return array{post_types: string[], lifetime_days: int}
  */
-function cplink_settings() {
-	$saved = get_option( CPLINK_OPTION, array() );
+function ppml_settings() {
+	$saved = get_option( PPML_OPTION, array() );
 	return wp_parse_args(
 		is_array( $saved ) ? $saved : array(),
 		array(
@@ -33,34 +33,34 @@ function cplink_settings() {
  * can take a month. A link that dies after one click or a few days ends in an
  * unexplained "not found" page.
  */
-function cplink_lifetime() {
-	$days = max( 1, min( 365, (int) cplink_settings()['lifetime_days'] ) );
-	return (int) apply_filters( 'cplink_lifetime', $days * DAY_IN_SECONDS );
+function ppml_lifetime() {
+	$days = max( 1, min( 365, (int) ppml_settings()['lifetime_days'] ) );
+	return (int) apply_filters( 'ppml_lifetime', $days * DAY_IN_SECONDS );
 }
 
-function cplink_post_types() {
-	return array_values( array_filter( (array) cplink_settings()['post_types'], 'post_type_exists' ) );
+function ppml_post_types() {
+	return array_values( array_filter( (array) ppml_settings()['post_types'], 'post_type_exists' ) );
 }
 
 // ── Who may see a page ──────────────────────
 
 /** The client assigned to a post, or 0. */
-function cplink_client_id( $post_id ) {
-	return (int) get_post_meta( $post_id, CPLINK_META_CLIENT, true );
+function ppml_client_id( $post_id ) {
+	return (int) get_post_meta( $post_id, PPML_META_CLIENT, true );
 }
 
-function cplink_is_client_user( $user_id ) {
+function ppml_is_client_user( $user_id ) {
 	$user = get_userdata( $user_id );
-	return $user && in_array( CPLINK_ROLE, (array) $user->roles, true );
+	return $user && in_array( PPML_ROLE, (array) $user->roles, true );
 }
 
 /** A post is restricted when it is an enabled type and has a client. */
-function cplink_is_restricted( $post_id ) {
-	return in_array( get_post_type( $post_id ), cplink_post_types(), true ) && cplink_client_id( $post_id ) > 0;
+function ppml_is_restricted( $post_id ) {
+	return in_array( get_post_type( $post_id ), ppml_post_types(), true ) && ppml_client_id( $post_id ) > 0;
 }
 
-function cplink_user_can_view( $post_id, $user_id = null ) {
-	if ( ! cplink_is_restricted( $post_id ) ) {
+function ppml_user_can_view( $post_id, $user_id = null ) {
+	if ( ! ppml_is_restricted( $post_id ) ) {
 		return true;
 	}
 	$user_id = null === $user_id ? get_current_user_id() : (int) $user_id;
@@ -70,21 +70,21 @@ function cplink_user_can_view( $post_id, $user_id = null ) {
 	if ( user_can( $user_id, 'edit_post', $post_id ) ) {
 		return true;
 	}
-	return cplink_client_id( $post_id ) === $user_id;
+	return ppml_client_id( $post_id ) === $user_id;
 }
 
 /** Published posts assigned to a client, newest first. */
-function cplink_client_posts( $user_id, $limit = 5 ) {
+function ppml_client_posts( $user_id, $limit = 5 ) {
 	return get_posts(
 		array(
-			'post_type'        => cplink_post_types(),
+			'post_type'        => ppml_post_types(),
 			'post_status'      => 'publish',
 			'posts_per_page'   => $limit,
 			'fields'           => 'ids',
-			'meta_key'         => CPLINK_META_CLIENT, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_key'         => PPML_META_CLIENT, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_value'       => (int) $user_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'suppress_filters' => true,
-			'cplink_internal'  => true,
+			'ppml_internal'  => true,
 		)
 	);
 }
@@ -100,7 +100,7 @@ add_action(
 			return;
 		}
 		$post_id = get_queried_object_id();
-		if ( ! cplink_is_restricted( $post_id ) ) {
+		if ( ! ppml_is_restricted( $post_id ) ) {
 			return;
 		}
 
@@ -110,7 +110,7 @@ add_action(
 			define( 'DONOTCACHEPAGE', true );
 		}
 
-		if ( cplink_user_can_view( $post_id ) ) {
+		if ( ppml_user_can_view( $post_id ) ) {
 			return;
 		}
 		// set_404() alone keeps the post in the query. A theme whose 404
@@ -131,7 +131,7 @@ add_action(
 add_filter(
 	'wp_robots',
 	function ( $robots ) {
-		if ( is_singular() && cplink_is_restricted( get_queried_object_id() ) ) {
+		if ( is_singular() && ppml_is_restricted( get_queried_object_id() ) ) {
 			$robots['noindex']  = true;
 			$robots['nofollow'] = true;
 		}
@@ -147,12 +147,12 @@ add_filter(
 add_action(
 	'pre_get_posts',
 	function ( $query ) {
-		if ( is_admin() || $query->get( 'cplink_internal' ) || ( $query->is_main_query() && $query->is_singular() ) ) {
+		if ( is_admin() || $query->get( 'ppml_internal' ) || ( $query->is_main_query() && $query->is_singular() ) ) {
 			return;
 		}
 		$meta   = (array) $query->get( 'meta_query' );
 		$meta[] = array(
-			'key'     => CPLINK_META_CLIENT,
+			'key'     => PPML_META_CLIENT,
 			'compare' => 'NOT EXISTS',
 		);
 		$query->set( 'meta_query', $meta );
@@ -170,7 +170,7 @@ add_filter(
 			array_filter(
 				$pages,
 				function ( $page ) {
-					return cplink_user_can_view( $page->ID );
+					return ppml_user_can_view( $page->ID );
 				}
 			)
 		);
@@ -181,14 +181,14 @@ add_filter(
 add_action(
 	'init',
 	function () {
-		foreach ( cplink_post_types() as $type ) {
+		foreach ( ppml_post_types() as $type ) {
 			add_filter(
 				"rest_prepare_{$type}",
 				function ( $response, $post ) {
-					if ( cplink_user_can_view( $post->ID ) ) {
+					if ( ppml_user_can_view( $post->ID ) ) {
 						return $response;
 					}
-					return new WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'client-page-link' ), array( 'status' => 404 ) );
+					return new WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'private-page-magic-link' ), array( 'status' => 404 ) );
 				},
 				10,
 				2
@@ -204,22 +204,22 @@ add_action(
  * Only a keyed hash of the token is stored, so a leaked database does not
  * hand out working links.
  */
-function cplink_hash( $token ) {
+function ppml_hash( $token ) {
 	return hash_hmac( 'sha256', $token, wp_salt( 'auth' ) );
 }
 
 /**
  * A new link that opens the post as its client. Empty when there is no client.
  */
-function cplink_issue_link( $post_id ) {
-	$client_id = cplink_client_id( $post_id );
-	if ( ! $client_id || ! cplink_is_client_user( $client_id ) ) {
+function ppml_issue_link( $post_id ) {
+	$client_id = ppml_client_id( $post_id );
+	if ( ! $client_id || ! ppml_is_client_user( $client_id ) ) {
 		return '';
 	}
 
 	$now    = time();
 	$tokens = array_filter(
-		(array) get_post_meta( $post_id, CPLINK_META_TOKENS, true ),
+		(array) get_post_meta( $post_id, PPML_META_TOKENS, true ),
 		function ( $t ) use ( $now ) {
 			return is_array( $t ) && $t['expires'] > $now;
 		}
@@ -234,49 +234,49 @@ function cplink_issue_link( $post_id ) {
 	$tokens = array_slice( $tokens, 0, 19, true );
 
 	$token                         = wp_generate_password( 40, false, false );
-	$tokens[ cplink_hash( $token ) ] = array(
+	$tokens[ ppml_hash( $token ) ] = array(
 		'user'    => $client_id,
-		'expires' => $now + cplink_lifetime(),
+		'expires' => $now + ppml_lifetime(),
 	);
-	update_post_meta( $post_id, CPLINK_META_TOKENS, $tokens );
+	update_post_meta( $post_id, PPML_META_TOKENS, $tokens );
 
 	// Keep the newest link readable for editors, so the edit screen can always show it.
-	$sealed = cplink_seal( $token );
+	$sealed = ppml_seal( $token );
 	if ( $sealed ) {
 		update_post_meta(
 			$post_id,
-			CPLINK_META_CURRENT,
+			PPML_META_CURRENT,
 			array(
 				'token'   => $sealed,
 				'user'    => $client_id,
-				'expires' => $now + cplink_lifetime(),
+				'expires' => $now + ppml_lifetime(),
 			)
 		);
 	}
 
-	return add_query_arg( CPLINK_QUERY_ARG, $token, get_permalink( $post_id ) );
+	return add_query_arg( PPML_QUERY_ARG, $token, get_permalink( $post_id ) );
 }
 
 /**
  * The link to hand to the client: the current one while it has at least half
  * of its lifetime left, otherwise a new one. Empty when there is no client.
  */
-function cplink_current_link( $post_id ) {
-	$current = get_post_meta( $post_id, CPLINK_META_CURRENT, true );
-	$client  = cplink_client_id( $post_id );
-	if ( is_array( $current ) && (int) $current['user'] === $client && $current['expires'] - time() >= cplink_lifetime() / 2 ) {
-		$token  = cplink_unseal( $current['token'] );
-		$tokens = (array) get_post_meta( $post_id, CPLINK_META_TOKENS, true );
-		if ( $token && isset( $tokens[ cplink_hash( $token ) ] ) ) {
-			return add_query_arg( CPLINK_QUERY_ARG, $token, get_permalink( $post_id ) );
+function ppml_current_link( $post_id ) {
+	$current = get_post_meta( $post_id, PPML_META_CURRENT, true );
+	$client  = ppml_client_id( $post_id );
+	if ( is_array( $current ) && (int) $current['user'] === $client && $current['expires'] - time() >= ppml_lifetime() / 2 ) {
+		$token  = ppml_unseal( $current['token'] );
+		$tokens = (array) get_post_meta( $post_id, PPML_META_TOKENS, true );
+		if ( $token && isset( $tokens[ ppml_hash( $token ) ] ) ) {
+			return add_query_arg( PPML_QUERY_ARG, $token, get_permalink( $post_id ) );
 		}
 	}
-	return cplink_issue_link( $post_id );
+	return ppml_issue_link( $post_id );
 }
 
 /** When the current link (if any) expires, as a timestamp, or 0. */
-function cplink_current_expires( $post_id ) {
-	$current = get_post_meta( $post_id, CPLINK_META_CURRENT, true );
+function ppml_current_expires( $post_id ) {
+	$current = get_post_meta( $post_id, PPML_META_CURRENT, true );
 	return is_array( $current ) ? (int) $current['expires'] : 0;
 }
 
@@ -286,7 +286,7 @@ function cplink_current_expires( $post_id ) {
  * contain a working link. Returns '' when OpenSSL is unavailable; links
  * then work but cannot be shown again.
  */
-function cplink_seal( $token ) {
+function ppml_seal( $token ) {
 	if ( ! function_exists( 'openssl_encrypt' ) ) {
 		return '';
 	}
@@ -297,7 +297,7 @@ function cplink_seal( $token ) {
 	return false === $cipher ? '' : base64_encode( $iv . $tag . $cipher ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 }
 
-function cplink_unseal( $sealed ) {
+function ppml_unseal( $sealed ) {
 	if ( ! function_exists( 'openssl_decrypt' ) ) {
 		return '';
 	}
@@ -310,9 +310,9 @@ function cplink_unseal( $sealed ) {
 	return false === $token ? '' : $token;
 }
 
-function cplink_revoke_links( $post_id ) {
-	delete_post_meta( $post_id, CPLINK_META_TOKENS );
-	delete_post_meta( $post_id, CPLINK_META_CURRENT );
+function ppml_revoke_links( $post_id ) {
+	delete_post_meta( $post_id, PPML_META_TOKENS );
+	delete_post_meta( $post_id, PPML_META_CURRENT );
 }
 
 /**
@@ -322,39 +322,39 @@ add_action(
 	'template_redirect',
 	function () {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- the token is the credential.
-		if ( empty( $_GET[ CPLINK_QUERY_ARG ] ) || ! is_singular() ) {
+		if ( empty( $_GET[ PPML_QUERY_ARG ] ) || ! is_singular() ) {
 			return;
 		}
 		$post_id = get_queried_object_id();
-		if ( ! cplink_is_restricted( $post_id ) ) {
+		if ( ! ppml_is_restricted( $post_id ) ) {
 			return;
 		}
 		nocache_headers();
 
 		// Someone who can already see the page keeps their own session. An
 		// editor who clicks a client's link must not be signed out.
-		if ( is_user_logged_in() && cplink_user_can_view( $post_id ) ) {
+		if ( is_user_logged_in() && ppml_user_can_view( $post_id ) ) {
 			wp_safe_redirect( get_permalink( $post_id ) );
 			exit;
 		}
 
-		$token = sanitize_text_field( wp_unslash( $_GET[ CPLINK_QUERY_ARG ] ) );
+		$token = sanitize_text_field( wp_unslash( $_GET[ PPML_QUERY_ARG ] ) );
 		// phpcs:enable
-		$tokens = (array) get_post_meta( $post_id, CPLINK_META_TOKENS, true );
-		$entry  = $tokens[ cplink_hash( $token ) ] ?? null;
+		$tokens = (array) get_post_meta( $post_id, PPML_META_TOKENS, true );
+		$entry  = $tokens[ ppml_hash( $token ) ] ?? null;
 
 		// Invalid, expired, or issued to a previous client: fall through to the 404.
 		if ( ! is_array( $entry ) || $entry['expires'] <= time() ) {
 			return;
 		}
 		$user_id = (int) $entry['user'];
-		if ( cplink_client_id( $post_id ) !== $user_id || ! cplink_is_client_user( $user_id ) ) {
+		if ( ppml_client_id( $post_id ) !== $user_id || ! ppml_is_client_user( $user_id ) ) {
 			return;
 		}
 
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, true );
-		do_action( 'cplink_signed_in', $user_id, $post_id );
+		do_action( 'ppml_signed_in', $user_id, $post_id );
 		wp_safe_redirect( get_permalink( $post_id ) );
 		exit;
 	},
@@ -367,8 +367,8 @@ add_action(
 add_filter(
 	'authenticate',
 	function ( $user ) {
-		if ( $user instanceof WP_User && in_array( CPLINK_ROLE, (array) $user->roles, true ) ) {
-			return new WP_Error( 'cplink_link_only', __( 'This account opens only from the link we sent by email.', 'client-page-link' ) );
+		if ( $user instanceof WP_User && in_array( PPML_ROLE, (array) $user->roles, true ) ) {
+			return new WP_Error( 'ppml_link_only', __( 'This account opens only from the link we sent by email.', 'private-page-magic-link' ) );
 		}
 		return $user;
 	},
@@ -379,7 +379,7 @@ add_filter(
 add_filter(
 	'auth_cookie_expiration',
 	function ( $length, $user_id ) {
-		return cplink_is_client_user( $user_id ) ? cplink_lifetime() : $length;
+		return ppml_is_client_user( $user_id ) ? ppml_lifetime() : $length;
 	},
 	10,
 	2
@@ -388,7 +388,7 @@ add_filter(
 add_filter(
 	'show_admin_bar',
 	function ( $show ) {
-		return cplink_is_client_user( get_current_user_id() ) ? false : $show;
+		return ppml_is_client_user( get_current_user_id() ) ? false : $show;
 	}
 );
 
@@ -396,10 +396,10 @@ add_filter(
 add_action(
 	'admin_init',
 	function () {
-		if ( wp_doing_ajax() || ! cplink_is_client_user( get_current_user_id() ) ) {
+		if ( wp_doing_ajax() || ! ppml_is_client_user( get_current_user_id() ) ) {
 			return;
 		}
-		$posts = cplink_client_posts( get_current_user_id(), 1 );
+		$posts = ppml_client_posts( get_current_user_id(), 1 );
 		wp_safe_redirect( $posts ? get_permalink( $posts[0] ) : home_url( '/' ) );
 		exit;
 	}
@@ -412,25 +412,25 @@ add_action(
  *
  * @param string $context 'invite' (sent by an editor) or 'request' (asked for by the client).
  */
-function cplink_send_link_mail( $post_id, $context = 'invite' ) {
-	$user = get_userdata( cplink_client_id( $post_id ) );
-	$link = cplink_current_link( $post_id );
+function ppml_send_link_mail( $post_id, $context = 'invite' ) {
+	$user = get_userdata( ppml_client_id( $post_id ) );
+	$link = ppml_current_link( $post_id );
 	if ( ! $user || ! $link ) {
 		return false;
 	}
 
 	$site    = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	$title   = wp_specialchars_decode( get_the_title( $post_id ), ENT_QUOTES );
-	$expires = wp_date( get_option( 'date_format' ), cplink_current_expires( $post_id ) );
+	$expires = wp_date( get_option( 'date_format' ), ppml_current_expires( $post_id ) );
 
 	if ( 'request' === $context ) {
 		/* translators: %s: site name */
-		$subject = sprintf( __( '[%s] Your link', 'client-page-link' ), $site );
-		$intro   = __( 'Here is a new link to your page. If you did not ask for it, you can ignore this email.', 'client-page-link' );
+		$subject = sprintf( __( '[%s] Your link', 'private-page-magic-link' ), $site );
+		$intro   = __( 'Here is a new link to your page. If you did not ask for it, you can ignore this email.', 'private-page-magic-link' );
 	} else {
 		/* translators: %s: site name */
-		$subject = sprintf( __( '[%s] Your page is ready', 'client-page-link' ), $site );
-		$intro   = __( 'We have prepared a page for you. There is no password: the link below opens it directly.', 'client-page-link' );
+		$subject = sprintf( __( '[%s] Your page is ready', 'private-page-magic-link' ), $site );
+		$intro   = __( 'We have prepared a page for you. There is no password: the link below opens it directly.', 'private-page-magic-link' );
 	}
 
 	$body = implode(
@@ -442,7 +442,7 @@ function cplink_send_link_mail( $post_id, $context = 'invite' ) {
 			$link,
 			'',
 			/* translators: %s: date */
-			sprintf( __( 'The link works until %s. After that, you can ask for a new one on our site.', 'client-page-link' ), $expires ),
+			sprintf( __( 'The link works until %s. After that, you can ask for a new one on our site.', 'private-page-magic-link' ), $expires ),
 			'',
 			'-- ',
 			$site,
@@ -450,8 +450,8 @@ function cplink_send_link_mail( $post_id, $context = 'invite' ) {
 		)
 	);
 
-	$subject = apply_filters( 'cplink_mail_subject', $subject, $post_id, $context );
-	$body    = apply_filters( 'cplink_mail_body', $body, $post_id, $context, $link );
+	$subject = apply_filters( 'ppml_mail_subject', $subject, $post_id, $context );
+	$body    = apply_filters( 'ppml_mail_body', $body, $post_id, $context, $link );
 
 	return wp_mail( $user->user_email, $subject, $body );
 }

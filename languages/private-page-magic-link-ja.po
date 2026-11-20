@@ -1,16 +1,16 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Client Page Link 0.1.0\n"
+"Project-Id-Version: Private Page Magic Link 0.1.0\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Domain: client-page-link\n"
+"X-Domain: private-page-magic-link\n"
 
 #. Plugin Name
-msgid "Client Page Link"
-msgstr "Client Page Link"
+msgid "Private Page Magic Link"
+msgstr "Private Page Magic Link"
 
 #. Description
 msgid "Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks."
