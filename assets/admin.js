@@ -45,7 +45,7 @@
 					var input = wrap.querySelector( '.ppml-url' );
 					input.value = res.data.link;
 					if ( res.data.expires ) {
-						wrap.querySelector( '.ppml-expires' ).textContent = res.data.expires;
+						wrap.querySelector( '.ppml-expires-text' ).textContent = res.data.expires;
 					}
 				}
 				result.textContent = res.data.message || '';

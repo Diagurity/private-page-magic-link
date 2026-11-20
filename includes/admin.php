@@ -113,6 +113,7 @@ add_action(
 function ppml_render_meta_box( $post ) {
 	wp_nonce_field( 'ppml_save_' . $post->ID, 'ppml_nonce' );
 	$current = ppml_client_id( $post->ID );
+	$user    = $current ? get_userdata( $current ) : null;
 	$clients = get_users(
 		array(
 			'role'    => PPML_ROLE,
@@ -121,74 +122,95 @@ function ppml_render_meta_box( $post ) {
 		)
 	);
 	?>
-	<p class="description" style="margin-top:0"><?php esc_html_e( 'Choose a viewer and this page becomes visible only to them and to people who can edit it, such as administrators. Everyone else sees "page not found".', 'private-page-magic-link' ); ?></p>
-	<p>
-		<label for="ppml-client"><strong><?php esc_html_e( 'Viewer', 'private-page-magic-link' ); ?></strong></label>
-		<select id="ppml-client" name="ppml_client" style="width:100%">
-			<option value="0"><?php esc_html_e( '— None (public) —', 'private-page-magic-link' ); ?></option>
-			<?php foreach ( $clients as $client ) : ?>
-				<option value="<?php echo esc_attr( $client->ID ); ?>" <?php selected( $current, $client->ID ); ?>>
-					<?php echo esc_html( $client->display_name . ' <' . $client->user_email . '>' ); ?>
-				</option>
-			<?php endforeach; ?>
-		</select>
-	</p>
-	<?php if ( current_user_can( 'create_users' ) ) : ?>
-		<details <?php echo $clients ? '' : 'open'; ?>>
-			<summary><?php esc_html_e( 'Add a new viewer', 'private-page-magic-link' ); ?></summary>
-			<p>
-				<input type="email" name="ppml_new_email" aria-label="<?php esc_attr_e( 'Email', 'private-page-magic-link' ); ?>" placeholder="<?php esc_attr_e( 'Email', 'private-page-magic-link' ); ?>" style="width:100%">
-				<input type="text" name="ppml_new_name" aria-label="<?php esc_attr_e( 'Name (optional)', 'private-page-magic-link' ); ?>" placeholder="<?php esc_attr_e( 'Name (optional)', 'private-page-magic-link' ); ?>" style="width:100%;margin-top:4px">
-				<span class="description"><?php esc_html_e( 'Registered when you update the page. No password is created for them.', 'private-page-magic-link' ); ?></span>
-			</p>
-		</details>
-	<?php endif; ?>
-	<hr>
-	<p><strong><?php esc_html_e( 'Link for the viewer', 'private-page-magic-link' ); ?></strong></p>
-	<?php
-	if ( ! $current ) {
-		echo '<p class="description">' . esc_html__( 'Choose a viewer and update the page. The link will appear here.', 'private-page-magic-link' ) . '</p>';
-		return;
-	}
-	if ( 'publish' !== $post->post_status ) {
-		echo '<p class="description">' . esc_html__( 'Publish the page. The link will appear here.', 'private-page-magic-link' ) . '</p>';
-		return;
-	}
-	$user = get_userdata( $current );
-	$link    = ppml_current_link( $post->ID );
-	$expires = ppml_current_expires( $post->ID );
-	?>
-	<div class="ppml-box" data-post="<?php echo esc_attr( $post->ID ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ppml_ajax_' . $post->ID ) ); ?>">
-		<p class="description"><?php esc_html_e( 'Send this link to the viewer. Opening it takes them straight into this page, without a password, any number of times.', 'private-page-magic-link' ); ?></p>
-		<div class="ppml-link">
-			<input type="text" readonly class="ppml-url" value="<?php echo esc_attr( $link ); ?>" style="width:100%;font-size:12px" onfocus="this.select()">
-			<p style="margin:4px 0 0">
-				<button type="button" class="button ppml-copy"><?php esc_html_e( 'Copy', 'private-page-magic-link' ); ?></button>
-				<span class="ppml-copied" hidden><?php esc_html_e( 'Copied', 'private-page-magic-link' ); ?></span>
-			</p>
-			<p class="description ppml-expires">
-				<?php
-				if ( $expires ) {
-					/* translators: %s: date */
-					printf( esc_html__( 'Works until %s. A new link appears here before then.', 'private-page-magic-link' ), esc_html( wp_date( get_option( 'date_format' ), $expires ) ) );
-				}
-				?>
-			</p>
+	<div class="ppml">
+		<div class="ppml-status <?php echo $current ? 'is-private' : 'is-public'; ?>">
+			<span class="dashicons <?php echo $current ? 'dashicons-lock' : 'dashicons-unlock'; ?>" aria-hidden="true"></span>
+			<div>
+				<strong>
+					<?php
+					if ( $user ) {
+						/* translators: %s: viewer's name */
+						printf( esc_html__( 'Private: only %s can see this page', 'private-page-magic-link' ), esc_html( $user->display_name ) );
+					} else {
+						esc_html_e( 'Public: anyone can see this page', 'private-page-magic-link' );
+					}
+					?>
+				</strong>
+				<p><?php esc_html_e( 'Choose a viewer and this page becomes visible only to them and to people who can edit it, such as administrators. Everyone else sees "page not found".', 'private-page-magic-link' ); ?></p>
+			</div>
 		</div>
-		<p>
-			<button type="button" class="button ppml-do" data-do="mail"><?php esc_html_e( 'Email this link', 'private-page-magic-link' ); ?></button>
-			<br><span class="description" style="word-break:break-all">
-				<?php
-				/* translators: %s: email address */
-				printf( esc_html__( 'To: %s', 'private-page-magic-link' ), esc_html( $user ? $user->user_email : '' ) );
-				?>
-			</span>
-		</p>
-		<p class="ppml-result" role="status"></p>
-		<p style="margin-top:16px">
-			<button type="button" class="button-link button-link-delete ppml-do" data-do="renew" data-confirm="<?php esc_attr_e( 'Replace the link? Every link sent so far stops working and the viewer is signed out.', 'private-page-magic-link' ); ?>"><?php esc_html_e( 'Replace the link', 'private-page-magic-link' ); ?></button>
-			<br><span class="description"><?php esc_html_e( 'Use this if a link reached the wrong person, then send the new link to the viewer.', 'private-page-magic-link' ); ?></span>
-		</p>
+
+		<div class="ppml-section">
+			<h4 class="ppml-heading"><span class="ppml-step">1</span><?php esc_html_e( 'Viewer', 'private-page-magic-link' ); ?></h4>
+			<select id="ppml-client" name="ppml_client" class="ppml-select">
+				<option value="0"><?php esc_html_e( '— None (public) —', 'private-page-magic-link' ); ?></option>
+				<?php foreach ( $clients as $client ) : ?>
+					<option value="<?php echo esc_attr( $client->ID ); ?>" <?php selected( $current, $client->ID ); ?>>
+						<?php echo esc_html( $client->display_name . ' <' . $client->user_email . '>' ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<?php if ( current_user_can( 'create_users' ) ) : ?>
+				<details class="ppml-new" <?php echo $clients ? '' : 'open'; ?>>
+					<summary><?php esc_html_e( 'Add a new viewer', 'private-page-magic-link' ); ?></summary>
+					<div class="ppml-new-fields">
+						<input type="email" name="ppml_new_email" aria-label="<?php esc_attr_e( 'Email', 'private-page-magic-link' ); ?>" placeholder="<?php esc_attr_e( 'Email', 'private-page-magic-link' ); ?>">
+						<input type="text" name="ppml_new_name" aria-label="<?php esc_attr_e( 'Name (optional)', 'private-page-magic-link' ); ?>" placeholder="<?php esc_attr_e( 'Name (optional)', 'private-page-magic-link' ); ?>">
+					</div>
+					<p class="ppml-note"><?php esc_html_e( 'Registered when you update the page. No password is created for them.', 'private-page-magic-link' ); ?></p>
+				</details>
+			<?php endif; ?>
+		</div>
+
+		<div class="ppml-section">
+			<h4 class="ppml-heading"><span class="ppml-step">2</span><?php esc_html_e( 'Link for the viewer', 'private-page-magic-link' ); ?></h4>
+			<?php
+			if ( ! $current ) {
+				echo '<p class="ppml-empty">' . esc_html__( 'Choose a viewer and update the page. The link will appear here.', 'private-page-magic-link' ) . '</p></div></div>';
+				return;
+			}
+			if ( 'publish' !== $post->post_status ) {
+				echo '<p class="ppml-empty">' . esc_html__( 'Publish the page. The link will appear here.', 'private-page-magic-link' ) . '</p></div></div>';
+				return;
+			}
+			$link    = ppml_current_link( $post->ID );
+			$expires = ppml_current_expires( $post->ID );
+			?>
+			<div class="ppml-box" data-post="<?php echo esc_attr( $post->ID ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ppml_ajax_' . $post->ID ) ); ?>">
+				<div class="ppml-link">
+					<p class="ppml-lead"><?php esc_html_e( 'Send this link to the viewer. Opening it takes them straight into this page, without a password, any number of times.', 'private-page-magic-link' ); ?></p>
+					<div class="ppml-copyrow">
+						<input type="text" readonly class="ppml-url" value="<?php echo esc_attr( $link ); ?>" onfocus="this.select()">
+						<button type="button" class="button button-primary ppml-copy"><span class="dashicons dashicons-admin-page" aria-hidden="true"></span><?php esc_html_e( 'Copy', 'private-page-magic-link' ); ?></button>
+					</div>
+					<p class="ppml-meta">
+						<span class="ppml-copied" hidden><span class="dashicons dashicons-yes-alt" aria-hidden="true"></span><?php esc_html_e( 'Copied', 'private-page-magic-link' ); ?></span>
+						<span class="ppml-expires"><span class="dashicons dashicons-clock" aria-hidden="true"></span><span class="ppml-expires-text">
+						<?php
+						if ( $expires ) {
+							/* translators: %s: date */
+							printf( esc_html__( 'Works until %s. A new link appears here before then.', 'private-page-magic-link' ), esc_html( wp_date( get_option( 'date_format' ), $expires ) ) );
+						}
+						?>
+						</span></span>
+					</p>
+				</div>
+				<div class="ppml-mail">
+					<button type="button" class="button ppml-do" data-do="mail"><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e( 'Email this link', 'private-page-magic-link' ); ?></button>
+					<span class="ppml-to">
+						<?php
+						/* translators: %s: email address */
+						printf( esc_html__( 'To: %s', 'private-page-magic-link' ), esc_html( $user ? $user->user_email : '' ) );
+						?>
+					</span>
+				</div>
+				<p class="ppml-result" role="status"></p>
+				<div class="ppml-danger">
+					<button type="button" class="button-link button-link-delete ppml-do" data-do="renew" data-confirm="<?php esc_attr_e( 'Replace the link? Every link sent so far stops working and the viewer is signed out.', 'private-page-magic-link' ); ?>"><span class="dashicons dashicons-update" aria-hidden="true"></span><?php esc_html_e( 'Replace the link', 'private-page-magic-link' ); ?></button>
+					<span class="ppml-note"><?php esc_html_e( 'Use this if a link reached the wrong person, then send the new link to the viewer.', 'private-page-magic-link' ); ?></span>
+				</div>
+			</div>
+		</div>
 	</div>
 	<?php
 }
@@ -265,6 +287,7 @@ add_action(
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! in_array( get_post_type(), ppml_post_types(), true ) ) {
 			return;
 		}
+		wp_enqueue_style( 'ppml-admin', plugins_url( 'assets/admin.css', PPML_FILE ), array( 'dashicons' ), PPML_VERSION );
 		wp_enqueue_script( 'ppml-admin', plugins_url( 'assets/admin.js', PPML_FILE ), array(), PPML_VERSION, true );
 		wp_localize_script(
 			'ppml-admin',

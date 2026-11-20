@@ -155,3 +155,10 @@ msgstr "リンクを作り直し、閲覧者をログアウトさせました。
 
 msgid "Settings"
 msgstr "設定"
+
+#, php-format
+msgid "Private: only %s can see this page"
+msgstr "非公開：%sさんだけが見られます"
+
+msgid "Public: anyone can see this page"
+msgstr "公開中：誰でも見られます"
