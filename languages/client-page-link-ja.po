@@ -43,44 +43,14 @@ msgstr "公開しているページに、次のショートコードを置いて
 msgid "— None (public) —"
 msgstr "— なし（公開） —"
 
-msgid "Or add a new client"
-msgstr "新しいお客さまを追加"
-
 msgid "Email"
 msgstr "メールアドレス"
 
 msgid "Name (optional)"
 msgstr "お名前（任意）"
 
-msgid "Publish the post to send a link."
-msgstr "公開すると、リンクを送れるようになります。"
-
-msgid "Send link by email"
-msgstr "リンクをメールで送る"
-
-msgid "Show a link to copy"
-msgstr "リンクを表示してコピー"
-
-msgid "Revoke all links"
-msgstr "リンクをすべて取り消す"
-
-msgid "Revoking also signs the client out everywhere. Send a new link afterwards."
-msgstr "取り消すと、お客さまはすべての端末でログアウトされます。そのあと新しいリンクを送ってください。"
-
 msgid "Sorry, you are not allowed to do that."
 msgstr "この操作を行う権限がありません。"
-
-msgid "The link was sent to the client."
-msgstr "お客さまにリンクを送りました。"
-
-msgid "All links to this page were revoked and the client was signed out."
-msgstr "このページのリンクをすべて取り消し、お客さまをログアウトさせました。"
-
-msgid "No link was created. Check that a client is assigned and that this site can send email."
-msgstr "リンクを作れませんでした。お客さまが割り当てられているか、このサイトからメールを送れるかを確かめてください。"
-
-msgid "Copy this link into your own email. It is shown only once."
-msgstr "このリンクをコピーして、ご自身のメールに貼ってください。表示は1回だけです。"
 
 msgid "Invalid post ID."
 msgstr "投稿 ID が無効です。"
@@ -117,3 +87,68 @@ msgstr "この欄は空のままにしてください"
 
 msgid "Send me a new link"
 msgstr "リンクを再発行する"
+
+msgid "Private page for a client"
+msgstr "お客さま専用ページ"
+
+msgid "Choose a client and this page becomes visible only to them (and to editors). Everyone else sees \"page not found\"."
+msgstr "お客さまを選ぶと、このページはそのお客さまと編集者だけが見られるようになります。ほかの人には「ページが見つかりません」と表示されます。"
+
+msgid "Add a new client"
+msgstr "新しいお客さまを追加する"
+
+msgid "Saved when you update the page. No password is created for them."
+msgstr "ページを更新すると登録されます。お客さまのパスワードは作りません。"
+
+msgid "Link for the client"
+msgstr "お客さまに渡すリンク"
+
+msgid "Choose a client and update the page. Then you can make a link here."
+msgstr "お客さまを選んでページを更新すると、ここでリンクを作れます。"
+
+msgid "Publish the page. Then you can make a link here."
+msgstr "ページを公開すると、ここでリンクを作れます。"
+
+#, php-format
+msgid "Opening this link takes the client straight into this page, without a password. It works any number of times for %1$d days (until %2$s)."
+msgstr "このリンクを開くと、お客さまはパスワードなしでこのページに入れます。%1$d日間（%2$sまで）、何度でも使えます。"
+
+msgid "Make a link"
+msgstr "リンクを作る"
+
+msgid "Copy"
+msgstr "コピー"
+
+msgid "Copied"
+msgstr "コピーしました"
+
+msgid "Paste it into your own email. Each click makes a new link; links you gave before keep working."
+msgstr "ご自身のメールに貼ってお送りください。押すたびに新しいリンクになります。前にお渡ししたリンクも期限まで使えます。"
+
+#, php-format
+msgid "Email the link to %s"
+msgstr "%s にリンクをメールで送る"
+
+msgid "Stop every link to this page and sign the client out?"
+msgstr "このページのリンクをすべて止めて、お客さまをログアウトさせますか？"
+
+msgid "Stop all links"
+msgstr "リンクをすべて止める"
+
+msgid "For a link that reached the wrong person. The client is signed out too; send them a new link."
+msgstr "リンクが別の人に渡ってしまったときに使います。お客さまもログアウトされるので、新しいリンクを送り直してください。"
+
+msgid "Something went wrong. Reload the page and try again."
+msgstr "うまくいきませんでした。ページを再読み込みして、もう一度お試しください。"
+
+msgid "No link was made. Check that the client is saved."
+msgstr "リンクを作れませんでした。お客さまが保存されているか確かめてください。"
+
+msgid "Sent. Ask the client to check their spam folder if it does not arrive."
+msgstr "送りました。届かない場合は、迷惑メールのフォルダも見ていただくようお伝えください。"
+
+msgid "The email could not be sent. Check that this site can send email, or copy a link instead."
+msgstr "メールを送れませんでした。このサイトからメールを送れるか確かめるか、リンクを作ってコピーしてください。"
+
+msgid "All links were stopped and the client was signed out."
+msgstr "リンクをすべて止め、お客さまをログアウトさせました。"

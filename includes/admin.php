@@ -96,13 +96,12 @@ add_action(
 	'add_meta_boxes',
 	function () {
 		foreach ( cplink_post_types() as $type ) {
-			add_meta_box( 'cplink', __( 'Client', 'client-page-link' ), 'cplink_render_meta_box', $type, 'side' );
+			add_meta_box( 'cplink', __( 'Private page for a client', 'client-page-link' ), 'cplink_render_meta_box', $type, 'side' );
 		}
 	}
 );
 
 function cplink_render_meta_box( $post ) {
-	cplink_meta_box_notice( $post );
 	wp_nonce_field( 'cplink_save_' . $post->ID, 'cplink_nonce' );
 	$current = cplink_client_id( $post->ID );
 	$clients = get_users(
@@ -113,8 +112,9 @@ function cplink_render_meta_box( $post ) {
 		)
 	);
 	?>
+	<p class="description" style="margin-top:0"><?php esc_html_e( 'Choose a client and this page becomes visible only to them (and to editors). Everyone else sees "page not found".', 'client-page-link' ); ?></p>
 	<p>
-		<label for="cplink-client"><?php esc_html_e( 'Client', 'client-page-link' ); ?></label>
+		<label for="cplink-client"><strong><?php esc_html_e( 'Client', 'client-page-link' ); ?></strong></label>
 		<select id="cplink-client" name="cplink_client" style="width:100%">
 			<option value="0"><?php esc_html_e( '— None (public) —', 'client-page-link' ); ?></option>
 			<?php foreach ( $clients as $client ) : ?>
@@ -125,38 +125,65 @@ function cplink_render_meta_box( $post ) {
 		</select>
 	</p>
 	<?php if ( current_user_can( 'create_users' ) ) : ?>
-		<p>
-			<label for="cplink-new-email"><?php esc_html_e( 'Or add a new client', 'client-page-link' ); ?></label>
-			<input id="cplink-new-email" type="email" name="cplink_new_email" placeholder="<?php esc_attr_e( 'Email', 'client-page-link' ); ?>" style="width:100%">
-			<input type="text" name="cplink_new_name" placeholder="<?php esc_attr_e( 'Name (optional)', 'client-page-link' ); ?>" style="width:100%;margin-top:4px">
-		</p>
+		<details <?php echo $clients ? '' : 'open'; ?>>
+			<summary><?php esc_html_e( 'Add a new client', 'client-page-link' ); ?></summary>
+			<p>
+				<input type="email" name="cplink_new_email" aria-label="<?php esc_attr_e( 'Email', 'client-page-link' ); ?>" placeholder="<?php esc_attr_e( 'Email', 'client-page-link' ); ?>" style="width:100%">
+				<input type="text" name="cplink_new_name" aria-label="<?php esc_attr_e( 'Name (optional)', 'client-page-link' ); ?>" placeholder="<?php esc_attr_e( 'Name (optional)', 'client-page-link' ); ?>" style="width:100%;margin-top:4px">
+				<span class="description"><?php esc_html_e( 'Saved when you update the page. No password is created for them.', 'client-page-link' ); ?></span>
+			</p>
+		</details>
 	<?php endif; ?>
+	<hr>
+	<p><strong><?php esc_html_e( 'Link for the client', 'client-page-link' ); ?></strong></p>
 	<?php
 	if ( ! $current ) {
+		echo '<p class="description">' . esc_html__( 'Choose a client and update the page. Then you can make a link here.', 'client-page-link' ) . '</p>';
 		return;
 	}
 	if ( 'publish' !== $post->post_status ) {
-		echo '<p class="description">' . esc_html__( 'Publish the post to send a link.', 'client-page-link' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Publish the page. Then you can make a link here.', 'client-page-link' ) . '</p>';
 		return;
 	}
-	foreach ( array(
-		'invite' => __( 'Send link by email', 'client-page-link' ),
-		'show'   => __( 'Show a link to copy', 'client-page-link' ),
-		'revoke' => __( 'Revoke all links', 'client-page-link' ),
-	) as $do => $label ) {
-		$url = wp_nonce_url(
-			add_query_arg(
-				array(
-					'action' => 'cplink_' . $do,
-					'post'   => $post->ID,
-				),
-				admin_url( 'admin-post.php' )
-			),
-			'cplink_' . $do . '_' . $post->ID
-		);
-		printf( '<a class="button" style="margin:0 4px 4px 0" href="%s">%s</a>', esc_url( $url ), esc_html( $label ) );
-	}
-	echo '<p class="description">' . esc_html__( 'Revoking also signs the client out everywhere. Send a new link afterwards.', 'client-page-link' ) . '</p>';
+	$user = get_userdata( $current );
+	?>
+	<div class="cplink-box" data-post="<?php echo esc_attr( $post->ID ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'cplink_ajax_' . $post->ID ) ); ?>">
+		<p class="description">
+			<?php
+			printf(
+				/* translators: 1: number of days, 2: date */
+				esc_html__( 'Opening this link takes the client straight into this page, without a password. It works any number of times for %1$d days (until %2$s).', 'client-page-link' ),
+				(int) round( cplink_lifetime() / DAY_IN_SECONDS ),
+				esc_html( wp_date( get_option( 'date_format' ), time() + cplink_lifetime() ) )
+			);
+			?>
+		</p>
+		<p>
+			<button type="button" class="button button-primary cplink-do" data-do="link"><?php esc_html_e( 'Make a link', 'client-page-link' ); ?></button>
+		</p>
+		<div class="cplink-link" hidden>
+			<input type="text" readonly class="cplink-url" style="width:100%;font-size:12px" onfocus="this.select()">
+			<p style="margin:4px 0 0">
+				<button type="button" class="button cplink-copy"><?php esc_html_e( 'Copy', 'client-page-link' ); ?></button>
+				<span class="cplink-copied" hidden><?php esc_html_e( 'Copied', 'client-page-link' ); ?></span>
+			</p>
+			<p class="description"><?php esc_html_e( 'Paste it into your own email. Each click makes a new link; links you gave before keep working.', 'client-page-link' ); ?></p>
+		</div>
+		<p>
+			<button type="button" class="button cplink-do" data-do="mail">
+				<?php
+				/* translators: %s: email address */
+				printf( esc_html__( 'Email the link to %s', 'client-page-link' ), esc_html( $user ? $user->user_email : '' ) );
+				?>
+			</button>
+		</p>
+		<p class="cplink-result" role="status"></p>
+		<p style="margin-top:16px">
+			<button type="button" class="button-link button-link-delete cplink-do" data-do="revoke" data-confirm="<?php esc_attr_e( 'Stop every link to this page and sign the client out?', 'client-page-link' ); ?>"><?php esc_html_e( 'Stop all links', 'client-page-link' ); ?></button>
+			<br><span class="description"><?php esc_html_e( 'For a link that reached the wrong person. The client is signed out too; send them a new link.', 'client-page-link' ); ?></span>
+		</p>
+	</div>
+	<?php
 }
 
 add_action(
@@ -223,93 +250,57 @@ function cplink_unique_login( $email ) {
 	return $login;
 }
 
-// ── Buttons ─────────────────────────────────
-
-/**
- * @return int The post the button belongs to, after checking nonce and capability.
- */
-function cplink_admin_action_post( $action ) {
-	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
-	check_admin_referer( 'cplink_' . $action . '_' . $post_id );
-	if ( ! current_user_can( 'edit_post', $post_id ) ) {
-		wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'client-page-link' ), '', array( 'response' => 403 ) );
-	}
-	return $post_id;
-}
-
-function cplink_back( $post_id, $notice ) {
-	wp_safe_redirect( add_query_arg( 'cplink_notice', $notice, get_edit_post_link( $post_id, 'raw' ) ) );
-	exit;
-}
+// ── Buttons (no page reload) ────────────────
 
 add_action(
-	'admin_post_cplink_invite',
-	function () {
-		$post_id = cplink_admin_action_post( 'invite' );
-		cplink_back( $post_id, cplink_send_link_mail( $post_id, 'invite' ) ? 'sent' : 'failed' );
-	}
-);
-
-/**
- * The link is not put in the redirect URL, where it would stay in the
- * browser history. It waits for five minutes where only this editor reads it.
- */
-add_action(
-	'admin_post_cplink_show',
-	function () {
-		$post_id = cplink_admin_action_post( 'show' );
-		$link    = cplink_issue_link( $post_id );
-		if ( $link ) {
-			set_transient( 'cplink_shown_' . get_current_user_id() . '_' . $post_id, $link, 5 * MINUTE_IN_SECONDS );
-		}
-		cplink_back( $post_id, $link ? 'shown' : 'failed' );
-	}
-);
-
-add_action(
-	'admin_post_cplink_revoke',
-	function () {
-		$post_id = cplink_admin_action_post( 'revoke' );
-		cplink_revoke_links( $post_id );
-		// A leaked link may already have been opened: end the client's sessions too.
-		$client = cplink_client_id( $post_id );
-		if ( $client && cplink_is_client_user( $client ) ) {
-			WP_Session_Tokens::get_instance( $client )->destroy_all();
-		}
-		cplink_back( $post_id, 'revoked' );
-	}
-);
-
-/**
- * Results of the buttons are shown inside the box. The block editor does not
- * display admin notices, so a notice would leave the editor looking as if the
- * page only reloaded.
- */
-function cplink_meta_box_notice( $post ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
-		$notice = isset( $_GET['cplink_notice'] ) ? sanitize_key( $_GET['cplink_notice'] ) : '';
-		if ( ! $notice ) {
+	'admin_enqueue_scripts',
+	function ( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! in_array( get_post_type(), cplink_post_types(), true ) ) {
 			return;
 		}
-		$messages = array(
-			'sent'    => array( 'success', __( 'The link was sent to the client.', 'client-page-link' ) ),
-			'revoked' => array( 'success', __( 'All links to this page were revoked and the client was signed out.', 'client-page-link' ) ),
-			'failed'  => array( 'error', __( 'No link was created. Check that a client is assigned and that this site can send email.', 'client-page-link' ) ),
+		wp_enqueue_script( 'cplink-admin', plugins_url( 'assets/admin.js', CPLINK_FILE ), array(), CPLINK_VERSION, true );
+		wp_localize_script(
+			'cplink-admin',
+			'cplinkAdmin',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'failed'  => __( 'Something went wrong. Reload the page and try again.', 'client-page-link' ),
+			)
 		);
-		if ( 'shown' === $notice ) {
-			$key  = 'cplink_shown_' . get_current_user_id() . '_' . $post->ID;
-			$link = get_transient( $key );
-			delete_transient( $key );
-			if ( $link ) {
-				printf(
-					'<div class="notice notice-info inline" style="margin:0 0 8px"><p>%s</p><p><textarea readonly rows="4" style="width:100%%;font-size:12px" onfocus="this.select()">%s</textarea></p></div>',
-					esc_html__( 'Copy this link into your own email. It is shown only once.', 'client-page-link' ),
-					esc_textarea( $link )
-				);
+	}
+);
+
+/**
+ * One endpoint for the three buttons: link, mail, revoke.
+ */
+add_action(
+	'wp_ajax_cplink',
+	function () {
+		$post_id = isset( $_POST['post'] ) ? absint( $_POST['post'] ) : 0;
+		check_ajax_referer( 'cplink_ajax_' . $post_id );
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( __( 'Sorry, you are not allowed to do that.', 'client-page-link' ), 403 );
+		}
+
+		$do = isset( $_POST['do'] ) ? sanitize_key( $_POST['do'] ) : '';
+		if ( 'link' === $do ) {
+			$link = cplink_issue_link( $post_id );
+			$link ? wp_send_json_success( array( 'link' => $link ) ) : wp_send_json_error( __( 'No link was made. Check that the client is saved.', 'client-page-link' ) );
+		}
+		if ( 'mail' === $do ) {
+			cplink_send_link_mail( $post_id, 'invite' )
+				? wp_send_json_success( array( 'message' => __( 'Sent. Ask the client to check their spam folder if it does not arrive.', 'client-page-link' ) ) )
+				: wp_send_json_error( __( 'The email could not be sent. Check that this site can send email, or copy a link instead.', 'client-page-link' ) );
+		}
+		if ( 'revoke' === $do ) {
+			cplink_revoke_links( $post_id );
+			// A leaked link may already have been opened: end the client's sessions too.
+			$client = cplink_client_id( $post_id );
+			if ( $client && cplink_is_client_user( $client ) ) {
+				WP_Session_Tokens::get_instance( $client )->destroy_all();
 			}
-			return;
+			wp_send_json_success( array( 'message' => __( 'All links were stopped and the client was signed out.', 'client-page-link' ) ) );
 		}
-		if ( isset( $messages[ $notice ] ) ) {
-			printf( '<div class="notice notice-%s inline" style="margin:0 0 8px"><p>%s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ) );
-		}
-}
+		wp_send_json_error( '', 400 );
+	}
+);

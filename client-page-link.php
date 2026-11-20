@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'CPLINK_VERSION', '0.1.0' );
+define( 'CPLINK_FILE', __FILE__ );
 define( 'CPLINK_ROLE', 'cplink_client' );
 define( 'CPLINK_META_CLIENT', '_cplink_client' );
 define( 'CPLINK_META_TOKENS', '_cplink_tokens' );
