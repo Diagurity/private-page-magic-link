@@ -163,7 +163,16 @@
 	width: 16px;
 	height: 16px;
 	line-height: 1;
-	vertical-align: middle;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+}
+
+.ppml-copy .dashicons::before,
+.ppml-do .dashicons::before,
+.ppml-meta .dashicons::before {
+	line-height: 1;
 }
 
 .ppml-meta {
@@ -224,4 +233,149 @@
 
 .ppml [hidden] {
 	display: none !important;
+}
+
+/* Settings screen */
+.ppml-settings {
+	max-width: 900px;
+}
+
+.ppml-hero {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	margin: 16px 0 20px;
+	padding: 24px 28px;
+	border-radius: 12px;
+	color: #fff;
+	background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+	box-shadow: 0 6px 20px rgba(29, 78, 216, 0.25);
+}
+
+.ppml-hero > .dashicons {
+	flex: none;
+	width: 52px;
+	height: 52px;
+	font-size: 30px;
+	line-height: 52px;
+	text-align: center;
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.18);
+}
+
+.ppml-hero h1 {
+	margin: 0 0 4px;
+	padding: 0;
+	color: #fff;
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.ppml-hero p {
+	color: rgba(255, 255, 255, 0.88);
+	font-size: 14px;
+}
+
+.ppml-steps {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.ppml-card {
+	margin-bottom: 12px;
+	padding: 20px 22px;
+	border: 1px solid var(--ppml-line);
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.ppml-howto .ppml-step {
+	margin-bottom: 8px;
+}
+
+.ppml-howto strong {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 14px;
+}
+
+.ppml-howto p {
+	color: var(--ppml-muted);
+}
+
+.ppml-card-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 6px;
+	font-size: 15px;
+}
+
+.ppml-card-title .dashicons {
+	color: var(--ppml-accent);
+}
+
+.ppml-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 14px;
+}
+
+.ppml-chip input {
+	position: absolute;
+	opacity: 0;
+}
+
+.ppml-chip span {
+	display: inline-block;
+	padding: 7px 16px;
+	border: 1px solid var(--ppml-line);
+	border-radius: 999px;
+	background: #f6f7f7;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.ppml-chip input:checked + span {
+	border-color: var(--ppml-accent);
+	background: var(--ppml-accent);
+	color: #fff;
+}
+
+.ppml-chip input:focus-visible + span {
+	outline: 2px solid var(--ppml-accent);
+	outline-offset: 2px;
+}
+
+.ppml-days {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+}
+
+.ppml-days input {
+	width: 90px;
+	font-size: 18px !important;
+	font-weight: 600;
+	text-align: right;
+}
+
+.ppml-copywrap {
+	margin-top: 12px;
+}
+
+.ppml-settings .submit {
+	margin: 4px 0 20px;
+	padding: 0;
+}
+
+@media (max-width: 782px) {
+	.ppml-steps {
+		grid-template-columns: 1fr;
+	}
 }

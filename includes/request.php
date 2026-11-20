@@ -58,7 +58,7 @@ function ppml_handle_request() {
 	// phpcs:enable
 	if ( $email && is_email( $email ) && ppml_request_allowed( $email ) ) {
 		$user = get_user_by( 'email', $email );
-		if ( $user && ppml_is_client_user( $user->ID ) ) {
+		if ( $user && ppml_can_be_viewer( $user->ID ) ) {
 			foreach ( ppml_client_posts( $user->ID ) as $post_id ) {
 				ppml_send_link_mail( $post_id, 'request' );
 			}

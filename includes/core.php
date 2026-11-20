@@ -49,6 +49,16 @@ function ppml_client_id( $post_id ) {
 	return (int) get_post_meta( $post_id, PPML_META_CLIENT, true );
 }
 
+/**
+ * Who may be chosen as a viewer: the link-only role, or any existing user who
+ * cannot edit posts (subscribers, customers, members). Staff are excluded: a
+ * leaked link would otherwise sign someone in with their permissions.
+ */
+function ppml_can_be_viewer( $user_id ) {
+	$user = get_userdata( $user_id );
+	return $user && ( in_array( PPML_ROLE, (array) $user->roles, true ) || ! user_can( $user, 'edit_posts' ) );
+}
+
 function ppml_is_client_user( $user_id ) {
 	$user = get_userdata( $user_id );
 	return $user && in_array( PPML_ROLE, (array) $user->roles, true );
@@ -213,7 +223,7 @@ function ppml_hash( $token ) {
  */
 function ppml_issue_link( $post_id ) {
 	$client_id = ppml_client_id( $post_id );
-	if ( ! $client_id || ! ppml_is_client_user( $client_id ) ) {
+	if ( ! $client_id || ! ppml_can_be_viewer( $client_id ) ) {
 		return '';
 	}
 
@@ -348,7 +358,7 @@ add_action(
 			return;
 		}
 		$user_id = (int) $entry['user'];
-		if ( ppml_client_id( $post_id ) !== $user_id || ! ppml_is_client_user( $user_id ) ) {
+		if ( ppml_client_id( $post_id ) !== $user_id || ! ppml_can_be_viewer( $user_id ) ) {
 			return;
 		}
 

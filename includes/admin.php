@@ -56,36 +56,74 @@ function ppml_render_settings() {
 	$settings = ppml_settings();
 	$types    = get_post_types( array( 'public' => true ), 'objects' );
 	unset( $types['attachment'] );
+	$code = '[private_page_magic_link_request]';
 	?>
-	<div class="wrap">
-		<h1><?php esc_html_e( 'Private Page Magic Link', 'private-page-magic-link' ); ?></h1>
+	<div class="wrap ppml ppml-settings">
+		<div class="ppml-hero">
+			<span class="dashicons dashicons-admin-links" aria-hidden="true"></span>
+			<div>
+				<h1><?php esc_html_e( 'Private Page Magic Link', 'private-page-magic-link' ); ?></h1>
+				<p><?php esc_html_e( 'Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks.', 'private-page-magic-link' ); ?></p>
+			</div>
+		</div>
+
+		<div class="ppml-steps">
+			<div class="ppml-card ppml-howto">
+				<span class="ppml-step">1</span>
+				<strong><?php esc_html_e( 'Choose a viewer', 'private-page-magic-link' ); ?></strong>
+				<p><?php esc_html_e( 'On the edit screen of a page, choose who may see it.', 'private-page-magic-link' ); ?></p>
+			</div>
+			<div class="ppml-card ppml-howto">
+				<span class="ppml-step">2</span>
+				<strong><?php esc_html_e( 'Send the link', 'private-page-magic-link' ); ?></strong>
+				<p><?php esc_html_e( 'Copy the link shown there, or email it with one click.', 'private-page-magic-link' ); ?></p>
+			</div>
+			<div class="ppml-card ppml-howto">
+				<span class="ppml-step">3</span>
+				<strong><?php esc_html_e( 'They open it', 'private-page-magic-link' ); ?></strong>
+				<p><?php esc_html_e( 'The page opens right away. No password to create or remember.', 'private-page-magic-link' ); ?></p>
+			</div>
+		</div>
+
 		<form method="post" action="options.php">
 			<?php settings_fields( 'ppml' ); ?>
-			<table class="form-table" role="presentation">
-				<tr>
-					<th scope="row"><?php esc_html_e( 'Post types', 'private-page-magic-link' ); ?></th>
-					<td>
-						<?php foreach ( $types as $type ) : ?>
-							<label style="display:block">
-								<input type="checkbox" name="<?php echo esc_attr( PPML_OPTION ); ?>[post_types][]" value="<?php echo esc_attr( $type->name ); ?>" <?php checked( in_array( $type->name, $settings['post_types'], true ) ); ?>>
-								<?php echo esc_html( $type->labels->singular_name ); ?>
-							</label>
-						<?php endforeach; ?>
-						<p class="description"><?php esc_html_e( 'Their edit screens get a box to choose a viewer. Posts without a viewer stay public.', 'private-page-magic-link' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="ppml-days"><?php esc_html_e( 'Link lifetime (days)', 'private-page-magic-link' ); ?></label></th>
-					<td>
-						<input id="ppml-days" type="number" min="1" max="365" name="<?php echo esc_attr( PPML_OPTION ); ?>[lifetime_days]" value="<?php echo esc_attr( $settings['lifetime_days'] ); ?>" class="small-text">
-						<p class="description"><?php esc_html_e( 'Until then a link opens any number of times, and a viewer who opened one stays signed in for the same period. A short lifetime breaks links that wait in an inbox during a long review.', 'private-page-magic-link' ); ?></p>
-					</td>
-				</tr>
-			</table>
-			<?php submit_button(); ?>
+
+			<div class="ppml-card">
+				<h2 class="ppml-card-title"><span class="dashicons dashicons-admin-page" aria-hidden="true"></span><?php esc_html_e( 'Post types', 'private-page-magic-link' ); ?></h2>
+				<p class="ppml-note"><?php esc_html_e( 'Their edit screens get a box to choose a viewer. Posts without a viewer stay public.', 'private-page-magic-link' ); ?></p>
+				<div class="ppml-chips">
+					<?php foreach ( $types as $type ) : ?>
+						<label class="ppml-chip">
+							<input type="checkbox" name="<?php echo esc_attr( PPML_OPTION ); ?>[post_types][]" value="<?php echo esc_attr( $type->name ); ?>" <?php checked( in_array( $type->name, $settings['post_types'], true ) ); ?>>
+							<span><?php echo esc_html( $type->labels->singular_name ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<div class="ppml-card">
+				<h2 class="ppml-card-title"><span class="dashicons dashicons-clock" aria-hidden="true"></span><label for="ppml-days"><?php esc_html_e( 'Link lifetime (days)', 'private-page-magic-link' ); ?></label></h2>
+				<p class="ppml-note"><?php esc_html_e( 'Until then a link opens any number of times, and a viewer who opened one stays signed in for the same period. A short lifetime breaks links that wait in an inbox during a long review.', 'private-page-magic-link' ); ?></p>
+				<div class="ppml-days">
+					<input id="ppml-days" type="number" min="1" max="365" name="<?php echo esc_attr( PPML_OPTION ); ?>[lifetime_days]" value="<?php echo esc_attr( $settings['lifetime_days'] ); ?>">
+					<span><?php esc_html_e( 'days', 'private-page-magic-link' ); ?></span>
+				</div>
+			</div>
+
+			<?php submit_button( null, 'primary large' ); ?>
 		</form>
-		<h2><?php esc_html_e( 'Letting viewers ask for a new link', 'private-page-magic-link' ); ?></h2>
-		<p><?php esc_html_e( 'Put this shortcode on any public page:', 'private-page-magic-link' ); ?> <code>[private_page_magic_link_request]</code></p>
+
+		<div class="ppml-card">
+			<h2 class="ppml-card-title"><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e( 'Letting viewers ask for a new link', 'private-page-magic-link' ); ?></h2>
+			<p class="ppml-note"><?php esc_html_e( 'Put this shortcode on any public page:', 'private-page-magic-link' ); ?></p>
+			<div class="ppml-link ppml-copywrap">
+				<div class="ppml-copyrow">
+					<input type="text" readonly class="ppml-url" value="<?php echo esc_attr( $code ); ?>" onfocus="this.select()">
+					<button type="button" class="button button-primary ppml-copy"><span class="dashicons dashicons-admin-page" aria-hidden="true"></span><?php esc_html_e( 'Copy', 'private-page-magic-link' ); ?></button>
+				</div>
+				<p class="ppml-meta"><span class="ppml-copied" hidden><span class="dashicons dashicons-yes-alt" aria-hidden="true"></span><?php esc_html_e( 'Copied', 'private-page-magic-link' ); ?></span></p>
+			</div>
+		</div>
 	</div>
 	<?php
 }
@@ -116,7 +154,7 @@ function ppml_render_meta_box( $post ) {
 	$user    = $current ? get_userdata( $current ) : null;
 	$clients = get_users(
 		array(
-			'role'    => PPML_ROLE,
+			'capability__not_in' => array( 'edit_posts' ),
 			'orderby' => 'display_name',
 			'number'  => 500,
 		)
@@ -150,6 +188,7 @@ function ppml_render_meta_box( $post ) {
 					</option>
 				<?php endforeach; ?>
 			</select>
+			<p class="ppml-note" style="margin-top:6px"><?php esc_html_e( 'Any existing user who cannot edit posts can be chosen. Administrators and editors are not listed: a leaked link would sign someone in with their permissions.', 'private-page-magic-link' ); ?></p>
 			<?php if ( current_user_can( 'create_users' ) ) : ?>
 				<details class="ppml-new" <?php echo $clients ? '' : 'open'; ?>>
 					<summary><?php esc_html_e( 'Add a new viewer', 'private-page-magic-link' ); ?></summary>
@@ -232,7 +271,7 @@ add_action(
 			$existing = get_user_by( 'email', $email );
 			if ( $existing ) {
 				// Never turn staff into a link-only client.
-				$client = ppml_is_client_user( $existing->ID ) ? $existing->ID : $client;
+				$client = ppml_can_be_viewer( $existing->ID ) ? $existing->ID : $client;
 			} else {
 				$name    = isset( $_POST['ppml_new_name'] ) ? sanitize_text_field( wp_unslash( $_POST['ppml_new_name'] ) ) : '';
 				$created = wp_insert_user(
@@ -250,7 +289,7 @@ add_action(
 			}
 		}
 
-		if ( $client && ! ppml_is_client_user( $client ) ) {
+		if ( $client && ! ppml_can_be_viewer( $client ) ) {
 			return;
 		}
 
@@ -284,11 +323,16 @@ function ppml_unique_login( $email ) {
 add_action(
 	'admin_enqueue_scripts',
 	function ( $hook ) {
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! in_array( get_post_type(), ppml_post_types(), true ) ) {
+		$settings = 'settings_page_private-page-magic-link' === $hook;
+		if ( ! $settings && ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) || ! in_array( get_post_type(), ppml_post_types(), true ) ) ) {
 			return;
 		}
-		wp_enqueue_style( 'ppml-admin', plugins_url( 'assets/admin.css', PPML_FILE ), array( 'dashicons' ), PPML_VERSION );
-		wp_enqueue_script( 'ppml-admin', plugins_url( 'assets/admin.js', PPML_FILE ), array(), PPML_VERSION, true );
+		// The file's modified time as the version, so browsers fetch an updated file.
+		$ver = function ( $file ) {
+			return PPML_VERSION . '.' . filemtime( plugin_dir_path( PPML_FILE ) . $file );
+		};
+		wp_enqueue_style( 'ppml-admin', plugins_url( 'assets/admin.css', PPML_FILE ), array( 'dashicons' ), $ver( 'assets/admin.css' ) );
+		wp_enqueue_script( 'ppml-admin', plugins_url( 'assets/admin.js', PPML_FILE ), array(), $ver( 'assets/admin.js' ), true );
 		wp_localize_script(
 			'ppml-admin',
 			'ppmlAdmin',
@@ -322,7 +366,7 @@ add_action(
 			ppml_revoke_links( $post_id );
 			// A leaked link may already have been opened: end the client's sessions too.
 			$client = ppml_client_id( $post_id );
-			if ( $client && ppml_is_client_user( $client ) ) {
+			if ( $client && ppml_can_be_viewer( $client ) ) {
 				WP_Session_Tokens::get_instance( $client )->destroy_all();
 			}
 			$link = ppml_current_link( $post_id );

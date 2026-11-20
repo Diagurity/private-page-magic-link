@@ -162,3 +162,27 @@ msgstr "非公開：%sさんだけが見られます"
 
 msgid "Public: anyone can see this page"
 msgstr "公開中：誰でも見られます"
+
+msgid "Choose a viewer"
+msgstr "閲覧者を選ぶ"
+
+msgid "On the edit screen of a page, choose who may see it."
+msgstr "ページの編集画面で、見てよい人を選びます。"
+
+msgid "Send the link"
+msgstr "リンクを送る"
+
+msgid "Copy the link shown there, or email it with one click."
+msgstr "そこに出るリンクをコピーするか、ボタン1つでメールで送ります。"
+
+msgid "They open it"
+msgstr "開いてもらう"
+
+msgid "The page opens right away. No password to create or remember."
+msgstr "リンクを押すだけでページが開きます。パスワードを作ったり覚えたりする必要はありません。"
+
+msgid "days"
+msgstr "日"
+
+msgid "Any existing user who cannot edit posts can be chosen. Administrators and editors are not listed: a leaked link would sign someone in with their permissions."
+msgstr "投稿を編集できないユーザーなら、既存のユーザーも選べます。管理者や編集者は出しません。リンクが漏れたときに、その人の権限でログインされてしまうためです。"
