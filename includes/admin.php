@@ -94,10 +94,7 @@ function cplink_render_settings() {
 add_filter(
 	'plugin_action_links_' . plugin_basename( CPLINK_FILE ),
 	function ( $links ) {
-		array_unshift(
-			$links,
-			sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'options-general.php?page=client-page-link' ) ), esc_html__( 'Settings', 'client-page-link' ) )
-		);
+		$links[] = sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'options-general.php?page=client-page-link' ) ), esc_html__( 'Settings', 'client-page-link' ) );
 		return $links;
 	}
 );
