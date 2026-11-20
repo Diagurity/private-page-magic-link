@@ -131,9 +131,12 @@ msgstr "このリンクを閲覧者に送ってください。開くと、パス
 msgid "Works until %s. A new link appears here before then."
 msgstr "%sまで使えます。期限が近づくと、ここに新しいリンクが出ます。"
 
+msgid "Send by email"
+msgstr "このリンクをメールで送る"
+
 #, php-format
-msgid "Email this link to %s"
-msgstr "このリンクを %s にメールで送る"
+msgid "To: %s"
+msgstr "宛先：%s"
 
 msgid "Replace the link"
 msgstr "リンクを作り直す"

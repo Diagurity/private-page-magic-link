@@ -167,12 +167,13 @@ function cplink_render_meta_box( $post ) {
 			</p>
 		</div>
 		<p>
-			<button type="button" class="button cplink-do" data-do="mail">
+			<button type="button" class="button cplink-do" data-do="mail"><?php esc_html_e( 'Send by email', 'client-page-link' ); ?></button>
+			<br><span class="description" style="word-break:break-all">
 				<?php
 				/* translators: %s: email address */
-				printf( esc_html__( 'Email this link to %s', 'client-page-link' ), esc_html( $user ? $user->user_email : '' ) );
+				printf( esc_html__( 'To: %s', 'client-page-link' ), esc_html( $user ? $user->user_email : '' ) );
 				?>
-			</button>
+			</span>
 		</p>
 		<p class="cplink-result" role="status"></p>
 		<p style="margin-top:16px">
