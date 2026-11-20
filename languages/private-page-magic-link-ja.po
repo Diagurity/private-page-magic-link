@@ -182,8 +182,8 @@ msgstr "リンクを押すだけでページが開きます。パスワードを
 msgid "days"
 msgstr "日"
 
-msgid "Any existing user who cannot edit posts can be chosen. Administrators and editors are not listed: a leaked link would sign someone in with their permissions."
-msgstr "投稿を編集できないユーザーなら、既存のユーザーも選べます。管理者や編集者は出しません。リンクが漏れたときに、その人の権限でログインされてしまうためです。"
+msgid "Administrators and editors are not listed here, since they can already see every page."
+msgstr "管理者・編集者は、もともとすべてのページを見られるので、ここには出ません。"
 
 msgid "Add as the viewer"
 msgstr "閲覧者として追加する"

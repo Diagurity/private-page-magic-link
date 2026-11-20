@@ -198,7 +198,7 @@ function ppml_meta_box_inner( $post, $flash = '' ) {
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<p class="ppml-note" style="margin-top:6px"><?php esc_html_e( 'Any existing user who cannot edit posts can be chosen. Administrators and editors are not listed: a leaked link would sign someone in with their permissions.', 'private-page-magic-link' ); ?></p>
+			<p class="ppml-note" style="margin-top:6px"><?php esc_html_e( 'Administrators and editors are not listed here, since they can already see every page.', 'private-page-magic-link' ); ?></p>
 			<p class="ppml-error" role="alert" hidden></p>
 			<?php if ( current_user_can( 'create_users' ) ) : ?>
 				<details class="ppml-new" <?php echo $clients ? '' : 'open'; ?>>
