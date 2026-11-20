@@ -13,4 +13,5 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 delete_option( 'cplink_settings' );
 delete_post_meta_by_key( '_cplink_client' );
 delete_post_meta_by_key( '_cplink_tokens' );
+delete_post_meta_by_key( '_cplink_current' );
 remove_role( 'cplink_client' );

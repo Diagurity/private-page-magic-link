@@ -14,28 +14,28 @@ msgstr "Client Page Link"
 
 #. Description
 msgid "Give each client a private page they open from a link in their email. No passwords, no login screen, and the link keeps working for weeks."
-msgstr "お客さまごとに、メールのリンクから開ける専用ページを用意します。パスワードもログイン画面もなく、リンクは数週間使えます。"
+msgstr "相手ごとに、メールのリンクから開ける専用ページを用意します。パスワードもログイン画面もなく、リンクは数週間使えます。"
 
 msgid "Client (link only)"
-msgstr "お客さま（リンクのみ）"
+msgstr "閲覧者（リンクのみ）"
 
 msgid "Client"
-msgstr "お客さま"
+msgstr "閲覧者"
 
 msgid "Post types"
 msgstr "対象の投稿タイプ"
 
 msgid "A box to assign a client appears on these. Posts without a client stay public."
-msgstr "選んだ投稿タイプの編集画面に、お客さまを割り当てる欄が出ます。お客さまを割り当てていない投稿は公開のままです。"
+msgstr "選んだ投稿タイプの編集画面に、閲覧者を割り当てる欄が出ます。閲覧者を割り当てていない投稿は公開のままです。"
 
 msgid "Link lifetime (days)"
 msgstr "リンクの有効期限（日）"
 
 msgid "Links work any number of times until then, and a client who opened one stays signed in for the same period. Short lifetimes break links that sit in an inbox during a long review."
-msgstr "期限までは何度でも開けます。リンクを開いたお客さまは、同じ期間ログインしたままになります。短くすると、先方の社内確認が長引いたときにメールのリンクが切れます。"
+msgstr "期限までは何度でも開けます。リンクを開いた閲覧者は、同じ期間ログインしたままになります。短くすると、先方の社内確認が長引いたときにメールのリンクが切れます。"
 
 msgid "Letting clients ask for a new link"
-msgstr "お客さまがリンクを再発行できるようにする"
+msgstr "閲覧者がリンクを再発行できるようにする"
 
 msgid "Put this shortcode on any public page:"
 msgstr "公開しているページに、次のショートコードを置いてください:"
@@ -89,32 +89,25 @@ msgid "Send me a new link"
 msgstr "リンクを再発行する"
 
 msgid "Private page for a client"
-msgstr "お客さま専用ページ"
+msgstr "閲覧者専用ページ"
 
 msgid "Choose a client and this page becomes visible only to them (and to editors). Everyone else sees \"page not found\"."
-msgstr "お客さまを選ぶと、このページはそのお客さまと編集者だけが見られるようになります。ほかの人には「ページが見つかりません」と表示されます。"
+msgstr "閲覧者を選ぶと、このページはその閲覧者と編集者だけが見られるようになります。ほかの人には「ページが見つかりません」と表示されます。"
 
 msgid "Add a new client"
-msgstr "新しいお客さまを追加する"
+msgstr "新しい閲覧者を追加する"
 
 msgid "Saved when you update the page. No password is created for them."
-msgstr "ページを更新すると登録されます。お客さまのパスワードは作りません。"
+msgstr "ページを更新すると登録されます。閲覧者のパスワードは作りません。"
 
 msgid "Link for the client"
-msgstr "お客さまに渡すリンク"
+msgstr "閲覧者に渡すリンク"
 
 msgid "Choose a client and update the page. Then you can make a link here."
-msgstr "お客さまを選んでページを更新すると、ここでリンクを作れます。"
+msgstr "閲覧者を選んでページを更新すると、ここにリンクが出ます。"
 
 msgid "Publish the page. Then you can make a link here."
-msgstr "ページを公開すると、ここでリンクを作れます。"
-
-#, php-format
-msgid "Opening this link takes the client straight into this page, without a password. It works any number of times for %1$d days (until %2$s)."
-msgstr "このリンクを開くと、お客さまはパスワードなしでこのページに入れます。%1$d日間（%2$sまで）、何度でも使えます。"
-
-msgid "Make a link"
-msgstr "リンクを作る"
+msgstr "ページを公開すると、ここにリンクが出ます。"
 
 msgid "Copy"
 msgstr "コピー"
@@ -122,33 +115,37 @@ msgstr "コピー"
 msgid "Copied"
 msgstr "コピーしました"
 
-msgid "Paste it into your own email. Each click makes a new link; links you gave before keep working."
-msgstr "ご自身のメールに貼ってお送りください。押すたびに新しいリンクになります。前にお渡ししたリンクも期限まで使えます。"
-
-#, php-format
-msgid "Email the link to %s"
-msgstr "%s にリンクをメールで送る"
-
-msgid "Stop every link to this page and sign the client out?"
-msgstr "このページのリンクをすべて止めて、お客さまをログアウトさせますか？"
-
-msgid "Stop all links"
-msgstr "リンクをすべて止める"
-
-msgid "For a link that reached the wrong person. The client is signed out too; send them a new link."
-msgstr "リンクが別の人に渡ってしまったときに使います。お客さまもログアウトされるので、新しいリンクを送り直してください。"
-
 msgid "Something went wrong. Reload the page and try again."
 msgstr "うまくいきませんでした。ページを再読み込みして、もう一度お試しください。"
 
 msgid "No link was made. Check that the client is saved."
-msgstr "リンクを作れませんでした。お客さまが保存されているか確かめてください。"
+msgstr "リンクを作れませんでした。閲覧者が保存されているか確かめてください。"
 
 msgid "Sent. Ask the client to check their spam folder if it does not arrive."
 msgstr "送りました。届かない場合は、迷惑メールのフォルダも見ていただくようお伝えください。"
 
-msgid "The email could not be sent. Check that this site can send email, or copy a link instead."
-msgstr "メールを送れませんでした。このサイトからメールを送れるか確かめるか、リンクを作ってコピーしてください。"
+msgid "Send this link to the client. Opening it takes them straight into this page, without a password, any number of times."
+msgstr "このリンクを閲覧者に送ってください。開くと、パスワードなしでこのページに入れます。何度でも使えます。"
 
-msgid "All links were stopped and the client was signed out."
-msgstr "リンクをすべて止め、お客さまをログアウトさせました。"
+#, php-format
+msgid "Works until %s. A new link appears here before then."
+msgstr "%sまで使えます。期限が近づくと、ここに新しいリンクが出ます。"
+
+#, php-format
+msgid "Email this link to %s"
+msgstr "このリンクを %s にメールで送る"
+
+msgid "Replace the link"
+msgstr "リンクを作り直す"
+
+msgid "Replace the link? Every link sent so far stops working and the client is signed out."
+msgstr "リンクを作り直しますか？これまでに送ったリンクはすべて使えなくなり、閲覧者はログアウトされます。"
+
+msgid "For a link that reached the wrong person. Send the new link to the client afterwards."
+msgstr "リンクが別の人に渡ってしまったときに使います。作り直したら、新しいリンクを閲覧者に送ってください。"
+
+msgid "The email could not be sent. Check that this site can send email, or copy the link instead."
+msgstr "メールを送れませんでした。このサイトからメールを送れるか確かめるか、リンクをコピーしてお送りください。"
+
+msgid "The link was replaced and the client was signed out. Send them the new link."
+msgstr "リンクを作り直し、閲覧者をログアウトさせました。新しいリンクを送ってください。"

@@ -44,9 +44,9 @@
 					wrap.querySelector( '.cplink-copied' ).hidden = true;
 					var input = wrap.querySelector( '.cplink-url' );
 					input.value = res.data.link;
-					input.focus();
-				} else {
-					box.querySelector( '.cplink-link' ).hidden = true;
+					if ( res.data.expires ) {
+						wrap.querySelector( '.cplink-expires' ).textContent = res.data.expires;
+					}
 				}
 				result.textContent = res.data.message || '';
 			} )

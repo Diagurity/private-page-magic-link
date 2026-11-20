@@ -146,41 +146,38 @@ function cplink_render_meta_box( $post ) {
 		return;
 	}
 	$user = get_userdata( $current );
+	$link    = cplink_current_link( $post->ID );
+	$expires = cplink_current_expires( $post->ID );
 	?>
 	<div class="cplink-box" data-post="<?php echo esc_attr( $post->ID ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'cplink_ajax_' . $post->ID ) ); ?>">
-		<p class="description">
-			<?php
-			printf(
-				/* translators: 1: number of days, 2: date */
-				esc_html__( 'Opening this link takes the client straight into this page, without a password. It works any number of times for %1$d days (until %2$s).', 'client-page-link' ),
-				(int) round( cplink_lifetime() / DAY_IN_SECONDS ),
-				esc_html( wp_date( get_option( 'date_format' ), time() + cplink_lifetime() ) )
-			);
-			?>
-		</p>
-		<p>
-			<button type="button" class="button button-primary cplink-do" data-do="link"><?php esc_html_e( 'Make a link', 'client-page-link' ); ?></button>
-		</p>
-		<div class="cplink-link" hidden>
-			<input type="text" readonly class="cplink-url" style="width:100%;font-size:12px" onfocus="this.select()">
+		<p class="description"><?php esc_html_e( 'Send this link to the client. Opening it takes them straight into this page, without a password, any number of times.', 'client-page-link' ); ?></p>
+		<div class="cplink-link">
+			<input type="text" readonly class="cplink-url" value="<?php echo esc_attr( $link ); ?>" style="width:100%;font-size:12px" onfocus="this.select()">
 			<p style="margin:4px 0 0">
 				<button type="button" class="button cplink-copy"><?php esc_html_e( 'Copy', 'client-page-link' ); ?></button>
 				<span class="cplink-copied" hidden><?php esc_html_e( 'Copied', 'client-page-link' ); ?></span>
 			</p>
-			<p class="description"><?php esc_html_e( 'Paste it into your own email. Each click makes a new link; links you gave before keep working.', 'client-page-link' ); ?></p>
+			<p class="description cplink-expires">
+				<?php
+				if ( $expires ) {
+					/* translators: %s: date */
+					printf( esc_html__( 'Works until %s. A new link appears here before then.', 'client-page-link' ), esc_html( wp_date( get_option( 'date_format' ), $expires ) ) );
+				}
+				?>
+			</p>
 		</div>
 		<p>
 			<button type="button" class="button cplink-do" data-do="mail">
 				<?php
 				/* translators: %s: email address */
-				printf( esc_html__( 'Email the link to %s', 'client-page-link' ), esc_html( $user ? $user->user_email : '' ) );
+				printf( esc_html__( 'Email this link to %s', 'client-page-link' ), esc_html( $user ? $user->user_email : '' ) );
 				?>
 			</button>
 		</p>
 		<p class="cplink-result" role="status"></p>
 		<p style="margin-top:16px">
-			<button type="button" class="button-link button-link-delete cplink-do" data-do="revoke" data-confirm="<?php esc_attr_e( 'Stop every link to this page and sign the client out?', 'client-page-link' ); ?>"><?php esc_html_e( 'Stop all links', 'client-page-link' ); ?></button>
-			<br><span class="description"><?php esc_html_e( 'For a link that reached the wrong person. The client is signed out too; send them a new link.', 'client-page-link' ); ?></span>
+			<button type="button" class="button-link button-link-delete cplink-do" data-do="renew" data-confirm="<?php esc_attr_e( 'Replace the link? Every link sent so far stops working and the client is signed out.', 'client-page-link' ); ?>"><?php esc_html_e( 'Replace the link', 'client-page-link' ); ?></button>
+			<br><span class="description"><?php esc_html_e( 'For a link that reached the wrong person. Send the new link to the client afterwards.', 'client-page-link' ); ?></span>
 		</p>
 	</div>
 	<?php
@@ -283,23 +280,29 @@ add_action(
 		}
 
 		$do = isset( $_POST['do'] ) ? sanitize_key( $_POST['do'] ) : '';
-		if ( 'link' === $do ) {
-			$link = cplink_issue_link( $post_id );
-			$link ? wp_send_json_success( array( 'link' => $link ) ) : wp_send_json_error( __( 'No link was made. Check that the client is saved.', 'client-page-link' ) );
-		}
 		if ( 'mail' === $do ) {
 			cplink_send_link_mail( $post_id, 'invite' )
 				? wp_send_json_success( array( 'message' => __( 'Sent. Ask the client to check their spam folder if it does not arrive.', 'client-page-link' ) ) )
-				: wp_send_json_error( __( 'The email could not be sent. Check that this site can send email, or copy a link instead.', 'client-page-link' ) );
+				: wp_send_json_error( __( 'The email could not be sent. Check that this site can send email, or copy the link instead.', 'client-page-link' ) );
 		}
-		if ( 'revoke' === $do ) {
+		if ( 'renew' === $do ) {
 			cplink_revoke_links( $post_id );
 			// A leaked link may already have been opened: end the client's sessions too.
 			$client = cplink_client_id( $post_id );
 			if ( $client && cplink_is_client_user( $client ) ) {
 				WP_Session_Tokens::get_instance( $client )->destroy_all();
 			}
-			wp_send_json_success( array( 'message' => __( 'All links were stopped and the client was signed out.', 'client-page-link' ) ) );
+			$link = cplink_current_link( $post_id );
+			$link
+				? wp_send_json_success(
+					array(
+						'link'    => $link,
+						/* translators: %s: date */
+						'expires' => sprintf( __( 'Works until %s. A new link appears here before then.', 'client-page-link' ), wp_date( get_option( 'date_format' ), cplink_current_expires( $post_id ) ) ),
+						'message' => __( 'The link was replaced and the client was signed out. Send them the new link.', 'client-page-link' ),
+					)
+				)
+				: wp_send_json_error( __( 'No link was made. Check that the client is saved.', 'client-page-link' ) );
 		}
 		wp_send_json_error( '', 400 );
 	}

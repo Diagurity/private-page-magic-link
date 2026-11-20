@@ -240,11 +240,79 @@ function cplink_issue_link( $post_id ) {
 	);
 	update_post_meta( $post_id, CPLINK_META_TOKENS, $tokens );
 
+	// Keep the newest link readable for editors, so the edit screen can always show it.
+	$sealed = cplink_seal( $token );
+	if ( $sealed ) {
+		update_post_meta(
+			$post_id,
+			CPLINK_META_CURRENT,
+			array(
+				'token'   => $sealed,
+				'user'    => $client_id,
+				'expires' => $now + cplink_lifetime(),
+			)
+		);
+	}
+
 	return add_query_arg( CPLINK_QUERY_ARG, $token, get_permalink( $post_id ) );
+}
+
+/**
+ * The link to hand to the client: the current one while it has at least half
+ * of its lifetime left, otherwise a new one. Empty when there is no client.
+ */
+function cplink_current_link( $post_id ) {
+	$current = get_post_meta( $post_id, CPLINK_META_CURRENT, true );
+	$client  = cplink_client_id( $post_id );
+	if ( is_array( $current ) && (int) $current['user'] === $client && $current['expires'] - time() >= cplink_lifetime() / 2 ) {
+		$token  = cplink_unseal( $current['token'] );
+		$tokens = (array) get_post_meta( $post_id, CPLINK_META_TOKENS, true );
+		if ( $token && isset( $tokens[ cplink_hash( $token ) ] ) ) {
+			return add_query_arg( CPLINK_QUERY_ARG, $token, get_permalink( $post_id ) );
+		}
+	}
+	return cplink_issue_link( $post_id );
+}
+
+/** When the current link (if any) expires, as a timestamp, or 0. */
+function cplink_current_expires( $post_id ) {
+	$current = get_post_meta( $post_id, CPLINK_META_CURRENT, true );
+	return is_array( $current ) ? (int) $current['expires'] : 0;
+}
+
+/**
+ * The newest token is stored encrypted with the site's secret keys (in
+ * wp-config.php), not in plain text. A copy of the database alone does not
+ * contain a working link. Returns '' when OpenSSL is unavailable; links
+ * then work but cannot be shown again.
+ */
+function cplink_seal( $token ) {
+	if ( ! function_exists( 'openssl_encrypt' ) ) {
+		return '';
+	}
+	$key    = hash( 'sha256', wp_salt( 'secure_auth' ), true );
+	$iv     = random_bytes( 12 );
+	$tag    = '';
+	$cipher = openssl_encrypt( $token, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+	return false === $cipher ? '' : base64_encode( $iv . $tag . $cipher ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+}
+
+function cplink_unseal( $sealed ) {
+	if ( ! function_exists( 'openssl_decrypt' ) ) {
+		return '';
+	}
+	$raw = base64_decode( (string) $sealed, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+	if ( false === $raw || strlen( $raw ) < 29 ) {
+		return '';
+	}
+	$key   = hash( 'sha256', wp_salt( 'secure_auth' ), true );
+	$token = openssl_decrypt( substr( $raw, 28 ), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr( $raw, 0, 12 ), substr( $raw, 12, 16 ) );
+	return false === $token ? '' : $token;
 }
 
 function cplink_revoke_links( $post_id ) {
 	delete_post_meta( $post_id, CPLINK_META_TOKENS );
+	delete_post_meta( $post_id, CPLINK_META_CURRENT );
 }
 
 /**
@@ -346,14 +414,14 @@ add_action(
  */
 function cplink_send_link_mail( $post_id, $context = 'invite' ) {
 	$user = get_userdata( cplink_client_id( $post_id ) );
-	$link = cplink_issue_link( $post_id );
+	$link = cplink_current_link( $post_id );
 	if ( ! $user || ! $link ) {
 		return false;
 	}
 
 	$site    = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	$title   = wp_specialchars_decode( get_the_title( $post_id ), ENT_QUOTES );
-	$expires = wp_date( get_option( 'date_format' ), time() + cplink_lifetime() );
+	$expires = wp_date( get_option( 'date_format' ), cplink_current_expires( $post_id ) );
 
 	if ( 'request' === $context ) {
 		/* translators: %s: site name */

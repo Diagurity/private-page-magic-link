@@ -22,6 +22,7 @@ define( 'CPLINK_FILE', __FILE__ );
 define( 'CPLINK_ROLE', 'cplink_client' );
 define( 'CPLINK_META_CLIENT', '_cplink_client' );
 define( 'CPLINK_META_TOKENS', '_cplink_tokens' );
+define( 'CPLINK_META_CURRENT', '_cplink_current' );
 define( 'CPLINK_OPTION', 'cplink_settings' );
 define( 'CPLINK_QUERY_ARG', 'cplink' );
 
