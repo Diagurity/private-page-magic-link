@@ -14,7 +14,7 @@ add_shortcode(
 	function () {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		if ( isset( $_GET['cplink_sent'] ) ) {
-			return '<p class="cplink-sent">' . esc_html__( 'If the address belongs to a client, a new link is on its way. Please check your inbox.', 'client-page-link' ) . '</p>';
+			return '<p class="cplink-sent">' . esc_html__( 'If the address is registered, a new link is on its way. Please check your inbox.', 'client-page-link' ) . '</p>';
 		}
 		ob_start();
 		?>

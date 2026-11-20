@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Client Page Link
- * Description:       Give each client a private page they open from a link in their email. No passwords, no login screen, and the link keeps working for weeks.
+ * Description:       Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks.
  * Version:           0.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -47,7 +47,7 @@ add_action(
 	function () {
 		$roles = wp_roles();
 		if ( isset( $roles->role_names[ CPLINK_ROLE ] ) ) {
-			$roles->role_names[ CPLINK_ROLE ] = __( 'Client (link only)', 'client-page-link' );
+			$roles->role_names[ CPLINK_ROLE ] = __( 'Viewer (link only)', 'client-page-link' );
 		}
 	}
 );
@@ -61,6 +61,6 @@ if ( is_admin() ) {
  * accounts must never sign in with a password.
  */
 function cplink_activate() {
-	add_role( CPLINK_ROLE, __( 'Client (link only)', 'client-page-link' ), array( 'read' => true ) );
+	add_role( CPLINK_ROLE, __( 'Viewer (link only)', 'client-page-link' ), array( 'read' => true ) );
 }
 register_activation_hook( __FILE__, 'cplink_activate' );
