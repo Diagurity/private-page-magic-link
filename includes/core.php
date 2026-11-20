@@ -113,8 +113,16 @@ add_action(
 		if ( cplink_user_can_view( $post_id ) ) {
 			return;
 		}
-		global $wp_query;
+		// set_404() alone keeps the post in the query. A theme whose 404
+		// template runs the loop (or falls back to index.php) would print it.
+		global $wp_query, $post;
 		$wp_query->set_404();
+		$wp_query->posts      = array();
+		$wp_query->post       = null;
+		$wp_query->post_count = 0;
+		$wp_query->found_posts = 0;
+		$wp_query->rewind_posts();
+		$post = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- removing the private post.
 		status_header( 404 );
 	},
 	5
