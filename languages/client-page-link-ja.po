@@ -91,8 +91,8 @@ msgstr "リンクを再発行する"
 msgid "Private page for a client"
 msgstr "閲覧者専用ページ"
 
-msgid "Choose a client and this page becomes visible only to them (and to editors). Everyone else sees \"page not found\"."
-msgstr "閲覧者を選ぶと、このページはその閲覧者と編集者だけが見られるようになります。ほかの人には「ページが見つかりません」と表示されます。"
+msgid "Choose a client and this page becomes visible only to them and to people who can edit it, such as administrators. Everyone else sees \"page not found\"."
+msgstr "閲覧者を選ぶと、このページはその閲覧者と、このページを編集できる人（管理者など）だけが見られるようになります。ほかの人には「ページが見つかりません」と表示されます。"
 
 msgid "Add a new client"
 msgstr "新しい閲覧者を追加する"

@@ -112,7 +112,7 @@ function cplink_render_meta_box( $post ) {
 		)
 	);
 	?>
-	<p class="description" style="margin-top:0"><?php esc_html_e( 'Choose a client and this page becomes visible only to them (and to editors). Everyone else sees "page not found".', 'client-page-link' ); ?></p>
+	<p class="description" style="margin-top:0"><?php esc_html_e( 'Choose a client and this page becomes visible only to them and to people who can edit it, such as administrators. Everyone else sees "page not found".', 'client-page-link' ); ?></p>
 	<p>
 		<label for="cplink-client"><strong><?php esc_html_e( 'Client', 'client-page-link' ); ?></strong></label>
 		<select id="cplink-client" name="cplink_client" style="width:100%">
