@@ -102,6 +102,7 @@ add_action(
 );
 
 function cplink_render_meta_box( $post ) {
+	cplink_meta_box_notice( $post );
 	wp_nonce_field( 'cplink_save_' . $post->ID, 'cplink_nonce' );
 	$current = cplink_client_id( $post->ID );
 	$clients = get_users(
@@ -279,13 +280,15 @@ add_action(
 	}
 );
 
-add_action(
-	'admin_notices',
-	function () {
+/**
+ * Results of the buttons are shown inside the box. The block editor does not
+ * display admin notices, so a notice would leave the editor looking as if the
+ * page only reloaded.
+ */
+function cplink_meta_box_notice( $post ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		$notice = isset( $_GET['cplink_notice'] ) ? sanitize_key( $_GET['cplink_notice'] ) : '';
-		$post   = get_post();
-		if ( ! $notice || ! $post ) {
+		if ( ! $notice ) {
 			return;
 		}
 		$messages = array(
@@ -299,15 +302,14 @@ add_action(
 			delete_transient( $key );
 			if ( $link ) {
 				printf(
-					'<div class="notice notice-info"><p>%s</p><p><input type="text" readonly class="large-text code" onfocus="this.select()" value="%s"></p></div>',
+					'<div class="notice notice-info inline" style="margin:0 0 8px"><p>%s</p><p><textarea readonly rows="4" style="width:100%%;font-size:12px" onfocus="this.select()">%s</textarea></p></div>',
 					esc_html__( 'Copy this link into your own email. It is shown only once.', 'client-page-link' ),
-					esc_attr( $link )
+					esc_textarea( $link )
 				);
 			}
 			return;
 		}
 		if ( isset( $messages[ $notice ] ) ) {
-			printf( '<div class="notice notice-%s is-dismissible"><p>%s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ) );
+			printf( '<div class="notice notice-%s inline" style="margin:0 0 8px"><p>%s</p></div>', esc_attr( $messages[ $notice ][0] ), esc_html( $messages[ $notice ][1] ) );
 		}
-	}
-);
+}
