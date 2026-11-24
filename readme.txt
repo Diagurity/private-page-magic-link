@@ -75,6 +75,11 @@ Use the `ppml_mail_subject` and `ppml_mail_body` filters. `ppml_lifetime` change
 
 Settings, links and viewer assignments are removed. Viewer accounts are kept, without a role.
 
+== Copyright ==
+
+Private Page Magic Link, Copyright (C) 2026 Diagurity (https://diagurity.com/).
+Released under the GNU General Public License, version 2 or (at your option) any later version. See LICENSE.
+
 == Changelog ==
 
 = 0.1.0 =
