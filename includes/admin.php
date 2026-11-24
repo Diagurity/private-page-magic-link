@@ -137,6 +137,66 @@ add_filter(
 	}
 );
 
+// ── Viewer column on the post list (administrators only) ──
+
+add_action(
+	'admin_init',
+	function () {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		foreach ( ppml_post_types() as $type ) {
+			add_filter( "manage_{$type}_posts_columns", 'ppml_add_viewer_column' );
+			add_action( "manage_{$type}_posts_custom_column", 'ppml_render_viewer_column', 10, 2 );
+		}
+	}
+);
+
+/** Put the column right after the title. */
+function ppml_add_viewer_column( $columns ) {
+	$out = array();
+	foreach ( $columns as $key => $label ) {
+		$out[ $key ] = $label;
+		if ( 'title' === $key ) {
+			$out['ppml_viewer'] = __( 'Viewer', 'private-page-magic-link' );
+		}
+	}
+	if ( ! isset( $out['ppml_viewer'] ) ) {
+		$out['ppml_viewer'] = __( 'Viewer', 'private-page-magic-link' );
+	}
+	return $out;
+}
+
+function ppml_render_viewer_column( $column, $post_id ) {
+	if ( 'ppml_viewer' !== $column ) {
+		return;
+	}
+	$user = get_userdata( ppml_client_id( $post_id ) );
+	if ( ! $user ) {
+		echo '<span aria-hidden="true">—</span><span class="screen-reader-text">' . esc_html__( 'Public', 'private-page-magic-link' ) . '</span>';
+		return;
+	}
+	$name = esc_html( $user->display_name );
+	if ( current_user_can( 'edit_user', $user->ID ) ) {
+		$name = '<a href="' . esc_url( get_edit_user_link( $user->ID ) ) . '">' . $name . '</a>';
+	}
+	printf(
+		'<span class="ppml-col"><span class="dashicons dashicons-lock" aria-hidden="true"></span><span>%s<br><span class="ppml-col-mail">%s</span></span></span>',
+		$name, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+		esc_html( $user->user_email )
+	);
+}
+
+add_action(
+	'admin_head-edit.php',
+	function () {
+		if ( ! current_user_can( 'manage_options' ) || ! in_array( get_current_screen()->post_type ?? '', ppml_post_types(), true ) ) {
+			return;
+		}
+		echo '<style>.column-ppml_viewer{width:18%}.ppml-col{display:flex;gap:6px;align-items:flex-start}.ppml-col .dashicons{color:#00a32a;font-size:18px;width:18px;height:18px;margin-top:1px}.ppml-col-mail{color:#646970;font-size:12px;word-break:break-all}</style>';
+	}
+);
+
 // ── Meta box ────────────────────────────────
 
 add_action(

@@ -215,3 +215,6 @@ msgstr "ログアウト"
 
 msgid "Private page"
 msgstr "閲覧者専用ページ"
+
+msgid "Public"
+msgstr "公開"
