@@ -63,7 +63,7 @@ function ppml_render_settings() {
 			<span class="dashicons dashicons-admin-links" aria-hidden="true"></span>
 			<div>
 				<h1><?php esc_html_e( 'Private Page Magic Link', 'private-page-magic-link' ); ?></h1>
-				<p><?php esc_html_e( 'Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks.', 'private-page-magic-link' ); ?></p>
+				<p><?php esc_html_e( 'Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen. The link works for as long as you set (30 days by default).', 'private-page-magic-link' ); ?></p>
 			</div>
 		</div>
 

@@ -467,3 +467,81 @@ function ppml_send_link_mail( $post_id, $context = 'invite' ) {
 
 	return wp_mail( $user->user_email, $subject, $body );
 }
+
+// ── Sign out on the page ────────────────────
+
+/**
+ * Is the current visitor the viewer of the page being shown? Editors are not:
+ * they have the admin bar and their own way out.
+ */
+function ppml_is_viewing_as_viewer() {
+	if ( ! is_singular() || ! is_user_logged_in() ) {
+		return false;
+	}
+	$post_id = get_queried_object_id();
+	return ppml_is_restricted( $post_id ) && ppml_client_id( $post_id ) === get_current_user_id();
+}
+
+/** Sign out and come back to the home page. */
+function ppml_logout_url() {
+	return wp_logout_url( home_url( '/' ) );
+}
+
+function ppml_logout_html() {
+	$user = wp_get_current_user();
+	return sprintf(
+		'<span class="ppml-who">%s</span><a class="ppml-logout" href="%s">%s</a>',
+		/* translators: %s: viewer's name */
+		esc_html( sprintf( __( 'Viewing as %s', 'private-page-magic-link' ), $user->display_name ) ),
+		esc_url( ppml_logout_url() ),
+		esc_html__( 'Sign out', 'private-page-magic-link' )
+	);
+}
+
+/**
+ * [private_page_magic_link_logout] puts the sign-out link wherever the theme
+ * wants it. When it is used on a page, the floating bar is not added there.
+ */
+add_shortcode(
+	'private_page_magic_link_logout',
+	function () {
+		if ( ! ppml_is_viewing_as_viewer() ) {
+			return '';
+		}
+		$GLOBALS['ppml_logout_placed'] = true;
+		return '<span class="ppml-logout-inline">' . ppml_logout_html() . '</span>';
+	}
+);
+
+/**
+ * A small bar in the corner of private pages, for the viewer only. Turn it off
+ * with add_filter( 'ppml_show_logout_bar', '__return_false' ).
+ */
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		if ( ! ppml_is_viewing_as_viewer() ) {
+			return;
+		}
+		wp_register_style( 'ppml-front', false, array(), PPML_VERSION );
+		wp_enqueue_style( 'ppml-front' );
+		wp_add_inline_style(
+			'ppml-front',
+			'.ppml-bar{position:fixed;right:16px;bottom:16px;z-index:99999;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;border-radius:999px;background:rgba(29,35,39,.92);color:#fff;font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.2)}'
+			. '.ppml-bar .ppml-logout{padding:6px 12px;border-radius:999px;background:#fff;color:#1d2327;text-decoration:none;font-weight:600}'
+			. '.ppml-bar .ppml-logout:hover,.ppml-bar .ppml-logout:focus{background:#f0f0f1}'
+			. '.ppml-logout-inline .ppml-who{margin-right:.75em}'
+			. '@media print{.ppml-bar{display:none}}'
+		);
+	}
+);
+
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! empty( $GLOBALS['ppml_logout_placed'] ) || ! ppml_is_viewing_as_viewer() || ! apply_filters( 'ppml_show_logout_bar', true ) ) {
+			return;
+		}
+		echo '<div class="ppml-bar" role="navigation" aria-label="' . esc_attr__( 'Private page', 'private-page-magic-link' ) . '">' . ppml_logout_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ppml_logout_html().
+	}
+);

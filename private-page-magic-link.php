@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Private Page Magic Link
- * Description:       Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks.
+ * Description:       Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen. The link works for as long as you set (30 days by default).
  * Version:           0.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4

@@ -8,7 +8,7 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks.
+Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen. The link works for as long as you set (30 days by default).
 
 == Description ==
 
@@ -18,8 +18,9 @@ Private Page Magic Link does exactly that.
 
 * Choose a **viewer** for any page (or any post type you enable). The page becomes private: only the viewer and people who can edit it, such as administrators, can see it. Everyone else gets your theme's normal "page not found".
 * The edit screen always shows the **link for the viewer**, with a Copy button. Paste it into your own email, or click "Email this link".
-* The link opens any number of times until it expires (30 days by default, up to 365). Opening the same email on two devices just works. Before it expires, a fresh link appears on the edit screen.
+* The link opens any number of times until it expires (you choose: 30 days by default, up to 365). Opening the same email on two devices just works. Before it expires, a fresh link appears on the edit screen.
 * Viewer accounts cannot sign in with a password at all. There is nothing to guess and nothing to reset.
+* While viewing their page, the viewer sees a small "Sign out" bar in the corner. Prefer to place it yourself? Use `[private_page_magic_link_logout]` in the page or theme, and the bar steps aside.
 * Viewers who lost the email can ask for a new one with the `[private_page_magic_link_request]` form. The answer never reveals whether an address is registered, and requests are rate limited.
 
 = How it differs from other plugins =
@@ -61,6 +62,10 @@ No. Anyone who can already see the page keeps their own session.
 = Does it work with page caching? =
 
 Private pages send no-cache headers and define `DONOTCACHEPAGE`, which most caching plugins respect. Check that your server-level cache does not store pages for logged-in users.
+
+= Can I hide the sign-out bar? =
+
+Put `[private_page_magic_link_logout]` where you want the link, or turn the bar off everywhere with `add_filter( 'ppml_show_logout_bar', '__return_false' );`.
 
 = Can I change the email text? =
 

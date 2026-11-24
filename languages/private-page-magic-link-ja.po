@@ -13,8 +13,8 @@ msgid "Private Page Magic Link"
 msgstr "Private Page Magic Link"
 
 #. Description
-msgid "Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen, and the link keeps working for weeks."
-msgstr "1人だけが見られるページを作り、そのページを開けるリンクを送ります。パスワードもログイン画面もなく、リンクは数週間使えます。"
+msgid "Make a page that only one person can see, and send them a link that opens it. No passwords, no login screen. The link works for as long as you set (30 days by default)."
+msgstr "1人だけが見られるページを作り、そのページを開けるリンクを送ります。パスワードもログイン画面もありません。リンクの有効期限は設定で決められます（既定は30日）。"
 
 msgid "Viewer (link only)"
 msgstr "閲覧者（リンクのみ）"
@@ -205,3 +205,13 @@ msgstr "保存しました。このページはこの閲覧者だけが見られ
 
 msgid "Saved. The page is public now."
 msgstr "保存しました。このページは公開に戻りました。"
+
+#, php-format
+msgid "Viewing as %s"
+msgstr "%sさんとして閲覧中"
+
+msgid "Sign out"
+msgstr "ログアウト"
+
+msgid "Private page"
+msgstr "閲覧者専用ページ"
