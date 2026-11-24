@@ -1,5 +1,5 @@
 === Private Page Magic Link ===
-Contributors: hanashiroworks
+Contributors: diagurity
 Tags: private page, magic link, passwordless, client portal, login link
 Requires at least: 6.0
 Tested up to: 6.9
