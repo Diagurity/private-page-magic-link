@@ -187,25 +187,27 @@ add_filter(
 	}
 );
 
-// A single post requested by ID over REST skips pre_get_posts.
-add_action(
-	'init',
-	function () {
-		foreach ( ppml_post_types() as $type ) {
-			add_filter(
-				"rest_prepare_{$type}",
-				function ( $response, $post ) {
-					if ( ppml_user_can_view( $post->ID ) ) {
-						return $response;
-					}
-					return new WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'private-page-magic-link' ), array( 'status' => 404 ) );
-				},
-				10,
-				2
-			);
+/**
+ * A single post requested by ID over REST skips pre_get_posts. Stop the
+ * request before it runs, the same way WordPress answers for a post that does
+ * not exist. (Returning an error from rest_prepare_{type} ends in a 500.)
+ */
+add_filter(
+	'rest_request_before_callbacks',
+	function ( $response, $handler, $request ) {
+		$id = (int) $request['id'];
+		if ( is_wp_error( $response ) || ! $id || ! ppml_is_restricted( $id ) || ppml_user_can_view( $id ) ) {
+			return $response;
 		}
+		$type = get_post_type_object( get_post_type( $id ) );
+		$base = $type && $type->rest_base ? $type->rest_base : get_post_type( $id );
+		if ( false === strpos( $request->get_route(), '/' . $base . '/' . $id ) ) {
+			return $response;
+		}
+		return new WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'private-page-magic-link' ), array( 'status' => 404 ) );
 	},
-	20
+	10,
+	3
 );
 
 // ── Links ───────────────────────────────────
