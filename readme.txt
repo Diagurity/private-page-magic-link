@@ -37,6 +37,10 @@ Private Page Magic Link does exactly that.
 * Private pages are sent with no-cache headers, marked noindex, and left out of archives, search, feeds, sitemaps, page lists and the REST API.
 * A long lifetime means a forwarded email works for whoever receives it until it expires. Put on these pages what you would put in an email to that person, not passwords or payment details. Shorten the lifetime in Settings if your pages need more protection.
 
+= Updates and external requests =
+
+To tell you about new versions on the Plugins screen, the plugin fetches one small JSON file at most once a day from `https://seccheck-fetcher.odd-brook-2273.workers.dev/wp-plugins/updates/private-page-magic-link.json` (a Cloudflare Worker that serves files from diagurity.com). The request carries only the plugin name and version as its user agent: no site URL, no user data. Updates are installed only when you click update, or when you turn on auto-updates for this plugin.
+
 == Installation ==
 
 1. Install and activate the plugin.

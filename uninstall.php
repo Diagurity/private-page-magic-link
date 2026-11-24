@@ -15,3 +15,4 @@ delete_post_meta_by_key( '_ppml_client' );
 delete_post_meta_by_key( '_ppml_tokens' );
 delete_post_meta_by_key( '_ppml_current' );
 remove_role( 'ppml_client' );
+delete_transient( 'ppml_update_info' );
