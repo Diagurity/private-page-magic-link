@@ -426,6 +426,16 @@ add_action(
  */
 function ppml_send_link_mail( $post_id, $context = 'invite' ) {
 	$user = get_userdata( ppml_client_id( $post_id ) );
+	if ( ! $user ) {
+		return false;
+	}
+	// The email is for the viewer: write it in their language.
+	return ppml_in_user_locale( $user->ID, function () use ( $post_id, $context, $user ) {
+		return ppml_send_link_mail_inner( $post_id, $context, $user );
+	} );
+}
+
+function ppml_send_link_mail_inner( $post_id, $context, $user ) {
 	$link = ppml_current_link( $post_id );
 	if ( ! $user || ! $link ) {
 		return false;
@@ -487,8 +497,32 @@ function ppml_logout_url() {
 	return wp_logout_url( home_url( '/' ) );
 }
 
+/**
+ * Run $callback in the user's own language (their profile setting), so text
+ * meant for the viewer follows them, not the site. The front end otherwise
+ * always uses the site language.
+ */
+function ppml_in_user_locale( $user_id, $callback ) {
+	$switched = function_exists( 'switch_to_user_locale' )
+		? switch_to_user_locale( $user_id )
+		: switch_to_locale( get_user_locale( $user_id ) );
+	try {
+		return $callback();
+	} finally {
+		if ( $switched ) {
+			restore_previous_locale();
+		}
+	}
+}
+
 function ppml_logout_html() {
 	$user = wp_get_current_user();
+	return ppml_in_user_locale( $user->ID, function () use ( $user ) {
+		return ppml_logout_html_inner( $user );
+	} );
+}
+
+function ppml_logout_html_inner( $user ) {
 	return sprintf(
 		'<span class="ppml-who">%s</span><a class="ppml-logout" href="%s">%s</a>',
 		/* translators: %s: viewer's name */
@@ -542,6 +576,9 @@ add_action(
 		if ( ! empty( $GLOBALS['ppml_logout_placed'] ) || ! ppml_is_viewing_as_viewer() || ! apply_filters( 'ppml_show_logout_bar', true ) ) {
 			return;
 		}
-		echo '<div class="ppml-bar" role="navigation" aria-label="' . esc_attr__( 'Private page', 'private-page-magic-link' ) . '">' . ppml_logout_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ppml_logout_html().
+		$label = ppml_in_user_locale( get_current_user_id(), function () {
+			return __( 'Private page', 'private-page-magic-link' );
+		} );
+		echo '<div class="ppml-bar" role="navigation" aria-label="' . esc_attr( $label ) . '">' . ppml_logout_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ppml_logout_html().
 	}
 );
